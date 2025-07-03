@@ -71,11 +71,11 @@ class FirebaseService {
         id: videoId,
         title: title,
         description: description,
-        imageUrl: thumbnailUrl ?? 'https://via.placeholder.com/300x450?text=${Uri.encodeComponent(title)}',
+        imageUrl: thumbnailUrl ?? '',
         videoUrl: videoUrl,
         type: type,
         year: DateTime.now().year,
-        rating: 5.0, // Default rating
+        rating: 3.0,
         genres: genres,
         seasons: type == MediaType.series ? 1 : null,
         totalEpisodes: type == MediaType.series ? 1 : null,
