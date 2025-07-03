@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1097325740860",
+    "project_id": "flixvod-41083",
+    "storage_bucket": "flixvod-41083.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097325740860:android:8960bb4aa6ed439601d439",
+        "android_client_info": {
+          "package_name": "com.example.flixvod"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnbXvt2oLjNHRbfThxxYun8CU0_eq2MVs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
