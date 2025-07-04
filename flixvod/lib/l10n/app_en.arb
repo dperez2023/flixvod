@@ -1,0 +1,171 @@
+{
+  "@@locale": "en",
+  "appTitle": "FlixVOD",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  
+  "catalogue": "Catalogue",
+  "@catalogue": {
+    "description": "Title for the catalogue page"
+  },
+  
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Tooltip for refresh button"
+  },
+  
+  "uploadMedia": "Upload Media",
+  "@uploadMedia": {
+    "description": "Tooltip for upload media button"
+  },
+  
+  "searchMoviesAndSeries": "Search movies and series...",
+  "@searchMoviesAndSeries": {
+    "description": "Hint text for search bar"
+  },
+  
+  "movies": "Movies",
+  "@movies": {
+    "description": "Label for movies section"
+  },
+  
+  "series": "Series",
+  "@series": {
+    "description": "Label for series section"
+  },
+  
+  "movie": "Movie",
+  "@movie": {
+    "description": "Label for a single movie"
+  },
+  
+  "play": "Play",
+  "@play": {
+    "description": "Label for play button"
+  },
+  
+  "watchlist": "Watchlist",
+  "@watchlist": {
+    "description": "Label for watchlist button"
+  },
+  
+  "description": "Description",
+  "@description": {
+    "description": "Label for description section"
+  },
+  
+  "rating": "Rating",
+  "@rating": {
+    "description": "Label for rating"
+  },
+  
+  "year": "Year",
+  "@year": {
+    "description": "Label for year"
+  },
+  
+  "duration": "Duration",
+  "@duration": {
+    "description": "Label for duration"
+  },
+  
+  "seasons": "seasons",
+  "@seasons": {
+    "description": "Label for seasons count"
+  },
+  
+  "episodes": "episodes", 
+  "@episodes": {
+    "description": "Label for episodes count"
+  },
+  
+  "min": "min",
+  "@min": {
+    "description": "Abbreviation for minutes"
+  },
+  
+  "deleteMedia": "Delete Media",
+  "@deleteMedia": {
+    "description": "Title for delete media dialog"
+  },
+  
+  "deleteConfirmation": "Are you sure you want to delete \"{title}\"?",
+  "@deleteConfirmation": {
+    "description": "Confirmation message for deleting media",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The title of the media to delete"
+      }
+    }
+  },
+  
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+  
+  "delete": "Delete", 
+  "@delete": {
+    "description": "Delete button text"
+  },
+  
+  "deleted": "Deleted \"{title}\"",
+  "@deleted": {
+    "description": "Success message after deleting media",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The title of the deleted media"
+      }
+    }
+  },
+  
+  "failedToDelete": "Failed to delete media: {error}",
+  "@failedToDelete": {
+    "description": "Error message when deletion fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "description": "The error message"
+      }
+    }
+  },
+  
+  "addedToWatchlist": "Added {title} to watchlist",
+  "@addedToWatchlist": {
+    "description": "Message when media is added to watchlist",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The title of the media"
+      }
+    }
+  },
+  
+  "noMediaAvailable": "No media available",
+  "@noMediaAvailable": {
+    "description": "Message when no media is available"
+  },
+  
+  "noMediaAvailableSubtitle": "Upload some videos to get started, or check your connection and try refreshing.",
+  "@noMediaAvailableSubtitle": {
+    "description": "Subtitle for no media available message"
+  },
+  
+  "noMediaFound": "No media found",
+  "@noMediaFound": {
+    "description": "Message when search returns no results"
+  },
+  
+  "noMediaFoundSubtitle": "Try adjusting your search or filter criteria",
+  "@noMediaFoundSubtitle": {
+    "description": "Subtitle for no media found message"
+  },
+  
+  "quickPlayDemo": "Quick Play Demo",
+  "@quickPlayDemo": {
+    "description": "Tooltip for quick play button"
+  }
+}
