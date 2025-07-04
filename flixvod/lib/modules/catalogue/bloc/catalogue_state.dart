@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../models/media.dart';
+import '../../../models/media.dart';
 
 enum CatalogueStatus { initial, loading, loaded, error }
 

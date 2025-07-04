@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'catalogue_event.dart';
 import 'catalogue_state.dart';
-import '../models/media.dart';
-import '../services/firebase_service.dart';
-import '../services/cache_service.dart';
-import '../logger.dart';
+import '../../../models/media.dart';
+import '../../../services/storage/firebase_service.dart';
+import '../../../services/cache_service.dart';
+import '../../../logger.dart';
 
 class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
   CatalogueBloc() : super(const CatalogueState()) {
