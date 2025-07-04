@@ -7,7 +7,7 @@ import '../../create/upload_page.dart';
 import '../widgets/catalogue_app_bar_widget.dart';
 import '../../common/error_state_widget.dart';
 import '../../common/empty_state_widget.dart';
-import '../../../widgets/media_list_widget.dart';
+import '../widgets/media_list_widget.dart';
 import '../../../localization/localized.dart';
 
 class CataloguePage extends StatefulWidget {

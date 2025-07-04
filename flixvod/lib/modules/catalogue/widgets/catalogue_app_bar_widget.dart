@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../localization/localized.dart';
-import '../../../widgets/search_bar_widget.dart';
-import '../../../widgets/filter_chips_widget.dart';
+import 'search_bar_widget.dart';
+import 'filter_chips_widget.dart';
 
 class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController searchController;
