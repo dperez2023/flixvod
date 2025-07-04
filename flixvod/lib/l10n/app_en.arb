@@ -167,5 +167,123 @@
   "quickPlayDemo": "Quick Play Demo",
   "@quickPlayDemo": {
     "description": "Tooltip for quick play button"
+  },
+  
+  "loadingVideo": "Loading video...",
+  "@loadingVideo": {
+    "description": "Message shown while video is loading"
+  },
+  
+  "failedToLoadVideo": "Failed to load video",
+  "@failedToLoadVideo": {
+    "description": "Error message when video fails to load"
+  },
+  
+  "errorPlayingVideo": "Error playing video",
+  "@errorPlayingVideo": {
+    "description": "Error message when video cannot be played"
+  },
+  
+  "anErrorOccurred": "An error occurred",
+  "@anErrorOccurred": {
+    "description": "Generic error message"
+  },
+  
+  "goBack": "Go Back",
+  "@goBack": {
+    "description": "Button text to go back to previous screen"
+  },
+  
+  "uploadMedia": "Upload Media",
+  "@uploadMedia": {
+    "description": "Label for upload media functionality"
+  },
+  
+  "upload": "Upload",
+  "@upload": {
+    "description": "Button text for upload action"
+  },
+  
+  "selectVideo": "Select Video *",
+  "@selectVideo": {
+    "description": "Label for video selection field"
+  },
+  
+  "noVideoSelected": "No video selected",
+  "@noVideoSelected": {
+    "description": "Message when no video is selected"
+  },
+  
+  "selectThumbnail": "Select Thumbnail",
+  "@selectThumbnail": {
+    "description": "Label for thumbnail selection field"
+  },
+  
+  "noThumbnailSelected": "No thumbnail selected (optional)",
+  "@noThumbnailSelected": {
+    "description": "Message when no thumbnail is selected"
+  },
+  
+  "videoCompression": "Video Compression",
+  "@videoCompression": {
+    "description": "Title for video compression dialog"
+  },
+  
+  "videoSizeIs": "Your video is {size}",
+  "@videoSizeIs": {
+    "description": "Message showing video size",
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "description": "The size of the video file"
+      }
+    }
+  },
+  
+  "compressionRecommendation": "For optimal performance, we recommend compressing videos to under 100MB.",
+  "@compressionRecommendation": {
+    "description": "Recommendation text for video compression"
+  },
+  
+  "estimatedCompressedSize": "Estimated compressed size: {size} MB",
+  "@estimatedCompressedSize": {
+    "description": "Estimated size after compression",
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "description": "The estimated compressed size"
+      }
+    }
+  },
+  
+  "uploadOriginal": "Upload Original",
+  "@uploadOriginal": {
+    "description": "Button text to upload original video"
+  },
+  
+  "compressAndUpload": "Compress & Upload",
+  "@compressAndUpload": {
+    "description": "Button text to compress and upload video"
+  },
+  
+  "successfullyUploaded": "Successfully uploaded: {title}",
+  "@successfullyUploaded": {
+    "description": "Success message after uploading media",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The title of the uploaded media"
+      }
+    }
+  },
+  
+  "retry": "Retry",
+  "@retry": {
+    "description": "Button text to retry an action"
+  },
+  
+  "all": "All",
+  "@all": {
+    "description": "Filter option to show all items"
   }
 }
