@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'bloc/catalogue_bloc.dart';
-import 'pages/catalogue_page.dart';
-import 'services/firebase_service.dart';
-import 'firebase_options.dart';
+import 'modules/catalogue/bloc/catalogue_bloc.dart';
+import 'modules/catalogue/pages/catalogue_page.dart';
+import 'services/storage/firebase_service.dart';
+import 'services/storage/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

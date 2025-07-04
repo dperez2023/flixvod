@@ -3,12 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/catalogue_bloc.dart';
 import '../bloc/catalogue_event.dart';
 import '../bloc/catalogue_state.dart';
-import '../../pages/upload_page.dart';
+import '../../create/upload_page.dart';
 import '../widgets/catalogue_app_bar_widget.dart';
-import '../../widgets/error_state_widget.dart';
-import '../../widgets/empty_state_widget.dart';
-import '../../widgets/media_list_widget.dart';
-import '../../utils/localized.dart';
+import '../../common/error_state_widget.dart';
+import '../../common/empty_state_widget.dart';
+import '../../../widgets/media_list_widget.dart';
+import '../../../localization/localized.dart';
 
 class CataloguePage extends StatefulWidget {
   const CataloguePage({super.key});
