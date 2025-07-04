@@ -8,6 +8,7 @@ class CatalogueState extends Equatable {
   final List<Media> allMedia;
   final List<Media> filteredMedia;
   final MediaType? selectedFilter;
+  final String? selectedGenre;
   final String searchQuery;
   final String? errorMessage;
 
@@ -16,6 +17,7 @@ class CatalogueState extends Equatable {
     this.allMedia = const [],
     this.filteredMedia = const [],
     this.selectedFilter,
+    this.selectedGenre,
     this.searchQuery = '',
     this.errorMessage,
   });
@@ -28,6 +30,7 @@ class CatalogueState extends Equatable {
     List<Media>? allMedia,
     List<Media>? filteredMedia,
     MediaType? selectedFilter,
+    String? selectedGenre,
     String? searchQuery,
     String? errorMessage,
   }) {
@@ -36,6 +39,7 @@ class CatalogueState extends Equatable {
       allMedia: allMedia ?? this.allMedia,
       filteredMedia: filteredMedia ?? this.filteredMedia,
       selectedFilter: selectedFilter ?? this.selectedFilter,
+      selectedGenre: selectedGenre ?? this.selectedGenre,
       searchQuery: searchQuery ?? this.searchQuery,
       errorMessage: errorMessage ?? this.errorMessage,
     );
@@ -47,6 +51,7 @@ class CatalogueState extends Equatable {
         allMedia,
         filteredMedia,
         selectedFilter,
+        selectedGenre,
         searchQuery,
         errorMessage,
       ];

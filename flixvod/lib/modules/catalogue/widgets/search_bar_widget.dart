@@ -14,13 +14,14 @@ class SearchBarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: TextField(
         controller: controller,
         decoration: InputDecoration(
-          hintText: Localized.of(context).placeholderSearch,
+          hintText: Localized.of(context).searchMoviesAndSeries,
           prefixIcon: const Icon(Icons.search),
           border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         ),
         onChanged: onChanged,
       ),

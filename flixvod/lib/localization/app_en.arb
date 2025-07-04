@@ -14,7 +14,7 @@
   "@refresh": {
     "description": "Tooltip for refresh button"
   },
-  
+
   "uploadMedia": "Upload Media",
   "@uploadMedia": {
     "description": "Tooltip for upload media button"
@@ -285,5 +285,10 @@
   "all": "All",
   "@all": {
     "description": "Filter option to show all items"
+  },
+  
+  "allGenres": "All Genres",
+  "@allGenres": {
+    "description": "Filter option to show all genres"
   }
 }

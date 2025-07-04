@@ -10,6 +10,7 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
   CatalogueBloc() : super(const CatalogueState()) {
     on<LoadCatalogue>(_onLoadCatalogue);
     on<FilterByType>(_onFilterByType);
+    on<FilterByGenre>(_onFilterByGenre);
     on<SearchMedia>(_onSearchMedia);
   }
 
@@ -82,6 +83,35 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
     
     emit(state.copyWith(
       selectedFilter: event.type,
+      filteredMedia: filtered,
+    ));
+  }
+
+  void _onFilterByGenre(FilterByGenre event, Emitter<CatalogueState> emit) {
+    List<Media> filtered;
+    
+    if (event.genre == null) {
+      filtered = state.allMedia;
+    } else {
+      filtered = state.allMedia.where((media) => 
+        media.genres.contains(event.genre)
+      ).toList();
+    }
+    
+    if (state.selectedFilter != null) {
+      filtered = filtered.where((media) => media.type == state.selectedFilter).toList();
+    }
+    
+    if (state.searchQuery.isNotEmpty) {
+      filtered = filtered.where((media) => 
+        media.title.toLowerCase().contains(state.searchQuery.toLowerCase()) ||
+        media.description.toLowerCase().contains(state.searchQuery.toLowerCase())
+      ).toList();
+    }
+    
+    // TODO: Is it needed to copy with?
+    emit(state.copyWith(
+      selectedGenre: event.genre,
       filteredMedia: filtered,
     ));
   }

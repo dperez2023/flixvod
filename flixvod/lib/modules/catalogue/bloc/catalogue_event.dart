@@ -29,3 +29,12 @@ class SearchMedia extends CatalogueEvent {
   @override
   List<Object> get props => [query];
 }
+
+class FilterByGenre extends CatalogueEvent {
+  final String? genre;
+
+  const FilterByGenre(this.genre);
+
+  @override
+  List<Object> get props => genre != null ? [genre!] : [];
+}
