@@ -35,6 +35,7 @@ class FirebaseService {
     required String description,
     required MediaType type,
     required List<String> genres,
+    required double rating,
     File? thumbnailFile,
   }) async {
     try {
@@ -51,7 +52,6 @@ class FirebaseService {
       final uploadTask = videoRef.putFile(videoFile);
       
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        // TODO: Progress upload status in a UI dialog/progress bar
         double progress = snapshot.bytesTransferred / snapshot.totalBytes;
         logger.i('Upload progress: ${(progress * 100).toStringAsFixed(0)}%');
       });
@@ -79,7 +79,7 @@ class FirebaseService {
         videoUrl: videoUrl,
         type: type,
         year: DateTime.now().year,
-        rating: 3.0,
+        rating: rating,
         genres: genres,
         seasons: type == MediaType.series ? 1 : null,
         totalEpisodes: type == MediaType.series ? 1 : null,
@@ -339,7 +339,7 @@ class FirebaseService {
     required String description,
     required MediaType type,
     required List<String> genres,
-    File? thumbnailFile,
+    required double rating,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -351,6 +351,7 @@ class FirebaseService {
         'description': description,
         'type': type.toString(),
         'genres': genres,
+        'rating': rating,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
@@ -361,6 +362,37 @@ class FirebaseService {
       logger.i('✅ Media updated successfully: $title');
     } catch (e) {
       throw Exception('Update failed: $e');
+    }
+  }
+
+  /// Fetches a single media item by its ID
+  static Future<Media?> getMediaById(String mediaId) async {
+    try {
+      final docSnapshot = await _firestore.collection('media').doc(mediaId).get();
+      
+      if (!docSnapshot.exists) {
+        logger.w('Media with ID $mediaId not found');
+        return null;
+      }
+
+      final data = docSnapshot.data()!;
+      return Media(
+        id: docSnapshot.id,
+        title: data['title'],
+        description: data['description'],
+        imageUrl: data['imageUrl'],
+        videoUrl: data['videoUrl'],
+        type: data['type'] == 'MediaType.series' ? MediaType.series : MediaType.movie,
+        year: data['year'],
+        rating: (data['rating'] as num).toDouble(),
+        genres: List<String>.from(data['genres']),
+        seasons: data['seasons'],
+        totalEpisodes: data['totalEpisodes'],
+        duration: data['duration'],
+      );
+    } catch (e) {
+      logger.e('Failed to fetch media by ID: $e');
+      throw Exception('Failed to fetch media: $e');
     }
   }
 

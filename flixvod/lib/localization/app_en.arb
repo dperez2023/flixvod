@@ -326,5 +326,98 @@
   "allGenres": "All Genres",
   "@allGenres": {
     "description": "Filter option to show all genres"
+  },
+  
+  "titleRequired": "Please enter a title",
+  "@titleRequired": {
+    "description": "Validation message for empty title field"
+  },
+  
+  "descriptionRequired": "Please enter a description",
+  "@descriptionRequired": {
+    "description": "Validation message for empty description field"
+  },
+  
+  "titleLabel": "Title *",
+  "@titleLabel": {
+    "description": "Label for title input field"
+  },
+  
+  "descriptionLabel": "Description *",
+  "@descriptionLabel": {
+    "description": "Label for description input field"
+  },
+  
+  "mediaTypeLabel": "Media Type *",
+  "@mediaTypeLabel": {
+    "description": "Label for media type selection"
+  },
+  
+  "genresLabel": "Genres",
+  "@genresLabel": {
+    "description": "Label for genres selection"
+  },
+  
+  "fillAllRequiredFields": "Please fill all required fields",
+  "@fillAllRequiredFields": {
+    "description": "Error message when required fields are empty"
+  },
+  
+  "pleaseSelectVideo": "Please select a video",
+  "@pleaseSelectVideo": {
+    "description": "Error message when no video is selected for upload"
+  },
+  
+  "failedToPickVideo": "Failed to pick video: {error}",
+  "@failedToPickVideo": {
+    "description": "Error message when video picking fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "description": "The error message"
+      }
+    }
+  },
+  
+  "failedToPickThumbnail": "Failed to pick thumbnail: {error}",
+  "@failedToPickThumbnail": {
+    "description": "Error message when thumbnail picking fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "description": "The error message"
+      }
+    }
+  },
+  
+  "uploadFailed": "Upload failed: {error}",
+  "@uploadFailed": {
+    "description": "Error message when upload fails",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "description": "The error message"
+      }
+    }
+  },
+  
+  "ratingLabel": "Rating *",
+  "@ratingLabel": {
+    "description": "Label for rating input field"
+  },
+  
+  "ratingRequired": "Please enter a rating",
+  "@ratingRequired": {
+    "description": "Validation message when rating is empty"
+  },
+  
+  "ratingInvalid": "Please enter a valid number",
+  "@ratingInvalid": {
+    "description": "Validation message when rating is not a valid number"
+  },
+  
+  "ratingOutOfRange": "Rating must be between 1.0 and 5.0",
+  "@ratingOutOfRange": {
+    "description": "Validation message when rating is out of valid range"
   }
 }
