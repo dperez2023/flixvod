@@ -66,7 +66,6 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
     emit(state.copyWith(status: CatalogueStatus.loading));
     
     try {
-      // Force refresh from Firebase (bypass cache)
       final mediaList = await FirebaseService.refreshAllMedia();
       
       emit(state.copyWith(
