@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../models/media.dart';
 import '../../detail/media_detail_page.dart';
 import '../../player/video_player_screen.dart';
 import '../../../services/storage/firebase_service.dart';
 import '../../../localization/localized.dart';
 import '../../common/notification_message_widget.dart';
+import '../bloc/catalogue_bloc.dart';
 
 class MediaCard extends StatelessWidget {
   final Media media;
@@ -69,9 +71,13 @@ class MediaCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
+          final catalogueBloc = context.read<CatalogueBloc>();
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => MediaDetailPage(media: media),
+              builder: (context) => BlocProvider.value(
+                value: catalogueBloc,
+                child: MediaDetailPage(media: media),
+              ),
             ),
           );
         },
