@@ -332,4 +332,36 @@ class FirebaseService {
     }
   }
 
+  // Update existing media metadata
+  static Future<void> updateMedia({
+    required String mediaId,
+    required String title,
+    required String description,
+    required MediaType type,
+    required List<String> genres,
+    File? thumbnailFile,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('User not authenticated');
+
+      // Prepare update data
+      final updateData = <String, dynamic>{
+        'title': title,
+        'description': description,
+        'type': type.toString(),
+        'genres': genres,
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      // Update Firestore with the changes
+      await _firestore.collection('media').doc(mediaId).update(updateData);
+
+      await CacheService.clearCache();
+      logger.i('✅ Media updated successfully: $title');
+    } catch (e) {
+      throw Exception('Update failed: $e');
+    }
+  }
+
 }

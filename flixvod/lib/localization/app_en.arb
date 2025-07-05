@@ -20,6 +20,16 @@
     "description": "Tooltip for upload media button"
   },
   
+  "editMedia": "Edit Media",
+  "@editMedia": {
+    "description": "Title for edit media page"
+  },
+  
+  "update": "Update",
+  "@update": {
+    "description": "Button text to update media"
+  },
+  
   "searchMoviesAndSeries": "Search movies and series...",
   "@searchMoviesAndSeries": {
     "description": "Hint text for search bar"
@@ -209,9 +219,24 @@
     "description": "Label for video selection field"
   },
   
+  "selectNewVideo": "Select New Video (Optional)",
+  "@selectNewVideo": {
+    "description": "Label for video selection field when editing"
+  },
+  
   "noVideoSelected": "No video selected",
   "@noVideoSelected": {
     "description": "Message when no video is selected"
+  },
+  
+  "keepCurrentVideo": "Keep current video",
+  "@keepCurrentVideo": {
+    "description": "Message when editing and no new video is selected"
+  },
+  
+  "keepCurrentThumbnail": "Keep current thumbnail",
+  "@keepCurrentThumbnail": {
+    "description": "Message when editing and no new thumbnail is selected"
   },
   
   "selectThumbnail": "Select Thumbnail",
@@ -273,6 +298,17 @@
       "title": {
         "type": "String",
         "description": "The title of the uploaded media"
+      }
+    }
+  },
+  
+  "successfullyUpdated": "Successfully updated: {title}",
+  "@successfullyUpdated": {
+    "description": "Success message after updating media",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The title of the updated media"
       }
     }
   },
