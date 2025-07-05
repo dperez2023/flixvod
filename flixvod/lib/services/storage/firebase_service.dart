@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flixvod/logger.dart';
 import '../../models/media.dart';
+import '../../utils/video_duration_utils.dart';
+import '../cache_service.dart';
 
 class FirebaseService {
   static FirebaseStorage get _storage => FirebaseStorage.instance;
@@ -21,7 +23,6 @@ class FirebaseService {
       if (_auth.currentUser == null) {
         await _auth.signInAnonymously(); //FIR Auth to allow anonymous access
       }
-      logger.d('✅ Firebase VOD Service initialized');
     } catch (e, s) {
       logger.e('❌ Firebase service initialization failed: $e', s);
       rethrow;
@@ -52,7 +53,7 @@ class FirebaseService {
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
         // TODO: Progress upload status in a UI dialog/progress bar
         double progress = snapshot.bytesTransferred / snapshot.totalBytes;
-        logger.d('Upload progress: ${(progress * 100).toStringAsFixed(1)}%');
+        logger.i('Upload progress: ${(progress * 100).toStringAsFixed(0)}%');
       });
       
       final videoSnapshot = await uploadTask;
@@ -65,6 +66,9 @@ class FirebaseService {
         final thumbSnapshot = await thumbRef.putFile(thumbnailFile);
         thumbnailUrl = await thumbSnapshot.ref.getDownloadURL();
       }
+
+      // Determine video duration for Media model
+      int videoDuration = await VideoDurationUtils.getVideoDurationInMinutes(videoFile) ?? -1;
 
       // Create Media object
       final media = Media(
@@ -79,7 +83,7 @@ class FirebaseService {
         genres: genres,
         seasons: type == MediaType.series ? 1 : null,
         totalEpisodes: type == MediaType.series ? 1 : null,
-        duration: type == MediaType.movie ? 120 : null,
+        duration: videoDuration,
       );
 
       await _firestore.collection('media').doc(videoId).set({
@@ -100,6 +104,7 @@ class FirebaseService {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
+      logger.i('✅ Media uploaded successfully: ${media.title} (${media.duration} minutes)');
       return media;
     } catch (e) {
       throw Exception('Upload failed: $e');
@@ -117,7 +122,7 @@ class FirebaseService {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         return Media(
-          id: data['id'],
+          id: doc.id,
           title: data['title'],
           description: data['description'],
           imageUrl: data['imageUrl'],
@@ -151,7 +156,7 @@ class FirebaseService {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         return Media(
-          id: data['id'],
+          id: doc.id,
           title: data['title'],
           description: data['description'],
           imageUrl: data['imageUrl'],
@@ -174,42 +179,67 @@ class FirebaseService {
   static Future<void> deleteMedia(String mediaId) async {
     try {
       final user = _auth.currentUser;
-      //TODO: Should annonymous users be able to delete media?
+      
       if (user == null) throw Exception('User not authenticated');
 
       final doc = await _firestore.collection('media').doc(mediaId).get();
-      if (!doc.exists) throw Exception('Media not found');
+      
+      if (!doc.exists) {
+        // TODO: Shouldn't delete an already deleted document
+        logger.e('Document not found');
+        return;
+      }
 
       final data = doc.data()!;
+      final mediaUserId = data['userId'] as String?;
       
-      // Check if user owns this media
-      if (data['userId'] != user.uid) {
+      // For anonymous users or when userId is null, allow deletion
+      // For identified users, check ownership
+      if (mediaUserId != null && user.isAnonymous == false && mediaUserId != user.uid) {
         throw Exception('Not authorized to delete this media');
       }
 
-      // Delete video file from Storage
-      final videoUrl = data['videoUrl'] as String;
-      final videoRef = _storage.refFromURL(videoUrl);
-      await videoRef.delete();
+      // First, delete metadata from Firestore to prevent race conditions
+      await _firestore.collection('media').doc(mediaId).delete();
 
-      // Delete thumbnail if exists
+      // Then delete video file from Storage
       try {
-        if (data['imageUrl'] != null && 
-            (data['imageUrl'] as String).contains('firebasestorage')) {
-          final thumbRef = _storage.refFromURL(data['imageUrl']);
-          await thumbRef.delete();
+        final videoUrl = data['videoUrl'] as String?;
+        if (videoUrl != null && videoUrl.isNotEmpty && videoUrl.contains('firebasestorage')) {
+          final videoRef = _storage.refFromURL(videoUrl);
+          await videoRef.delete();
         }
-      } catch (e, s) {
-        // Thumbnail deletion failed, but continue
-        logger.e('Thumbnail deletion failed: $e', s);
+      } catch (e) {
+        logger.e('Video file deletion failed: $e');
       }
 
-      // Delete metadata from Firestore
-      await _firestore.collection('media').doc(mediaId).delete();
+      // Finally delete thumbnail (if exists)
+      try {
+        final imageUrl = data['imageUrl'] as String?;
+        if (imageUrl != null && imageUrl.isNotEmpty && imageUrl.contains('firebasestorage')) {
+          final thumbRef = _storage.refFromURL(imageUrl);
+          await thumbRef.delete();
+        }
+      } catch (e) {
+        // Thumbnail deletion failed, but continue
+        logger.e('Thumbnail deletion failed: $e');
+      }
       
-      logger.i('✅ Media deleted successfully');
+      logger.i('✅ Media deleted successfully - ID: $mediaId');
     } catch (e, s) {
+      logger.e('Delete failed: $e', s);
       throw Exception('Delete failed: $e');
+    }
+  }
+
+  // VERIFY: Check if media document exists (for debugging)
+  static Future<bool> mediaExists(String mediaId) async {
+    try {
+      final doc = await _firestore.collection('media').doc(mediaId).get();
+      return doc.exists;
+    } catch (e) {
+      logger.e('Error checking media existence: $e');
+      return false;
     }
   }
 
@@ -244,7 +274,7 @@ class FirebaseService {
       return snapshot.docs.map((doc) {
         final data = doc.data();
         return Media(
-          id: data['id'],
+          id: doc.id,
           title: data['title'],
           description: data['description'],
           imageUrl: data['imageUrl'],
@@ -262,4 +292,44 @@ class FirebaseService {
       throw Exception('Filter failed: $e');
     }
   }
+
+  // REFRESH: Force refresh from Firebase
+  static Future<List<Media>> refreshAllMedia() async {
+    try {
+      // Clear cache first
+      await CacheService.clearCache();
+      
+      // Get fresh data from Firebase
+      final snapshot = await _firestore
+          .collection('media')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      final mediaList = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Media(
+          id: doc.id,
+          title: data['title'],
+          description: data['description'],
+          imageUrl: data['imageUrl'],
+          videoUrl: data['videoUrl'],
+          type: data['type'] == 'MediaType.series' ? MediaType.series : MediaType.movie,
+          year: data['year'],
+          rating: (data['rating'] as num).toDouble(),
+          genres: List<String>.from(data['genres']),
+          seasons: data['seasons'],
+          totalEpisodes: data['totalEpisodes'],
+          duration: data['duration'],
+        );
+      }).toList();
+
+      // Update cache with fresh data
+      await CacheService.cacheMediaList(mediaList);
+      
+      return mediaList;
+    } catch (e) {
+      throw Exception('Failed to refresh media: $e');
+    }
+  }
+
 }
