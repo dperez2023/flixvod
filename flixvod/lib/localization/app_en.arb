@@ -399,5 +399,25 @@
         "description": "The error message"
       }
     }
+  },
+  
+  "ratingLabel": "Rating *",
+  "@ratingLabel": {
+    "description": "Label for rating input field"
+  },
+  
+  "ratingRequired": "Please enter a rating",
+  "@ratingRequired": {
+    "description": "Validation message when rating is empty"
+  },
+  
+  "ratingInvalid": "Please enter a valid number",
+  "@ratingInvalid": {
+    "description": "Validation message when rating is not a valid number"
+  },
+  
+  "ratingOutOfRange": "Rating must be between 1.0 and 5.0",
+  "@ratingOutOfRange": {
+    "description": "Validation message when rating is out of valid range"
   }
 }
