@@ -23,7 +23,7 @@ class NotificationMessageWidget {
       SnackBar(
         content: Text(message),
         backgroundColor: backgroundColor,
-        behavior: SnackBarBehavior.floating,
+        behavior: SnackBarBehavior.fixed, // Changed from floating to fixed
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'Dismiss',

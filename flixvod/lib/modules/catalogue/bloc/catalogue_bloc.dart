@@ -9,6 +9,7 @@ import '../../../logger.dart';
 class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
   CatalogueBloc() : super(const CatalogueState()) {
     on<LoadCatalogue>(_onLoadCatalogue);
+    on<RefreshCatalogue>(_onRefreshCatalogue);
     on<FilterByType>(_onFilterByType);
     on<FilterByGenre>(_onFilterByGenre);
     on<SearchMedia>(_onSearchMedia);
@@ -22,7 +23,6 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
       final cachedMedia = await CacheService.getCachedMediaList();
       
       if (cachedMedia != null && cachedMedia.isNotEmpty) {
-        logger.d('Loading ${cachedMedia.length} media items from cache');
         emit(state.copyWith(
           status: CatalogueStatus.loaded,
           allMedia: cachedMedia,
@@ -32,13 +32,11 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
       }
       
       // Load media from Firebase if no cache
-      logger.d('No cache found, loading from Firebase');
       final mediaList = await FirebaseService.getAllMedia();
       
       if (mediaList.isNotEmpty) {
         // Cache the data for future use
         await CacheService.cacheMediaList(mediaList);
-        logger.d('Loaded ${mediaList.length} media items from Firebase');
         
         emit(state.copyWith(
           status: CatalogueStatus.loaded,
@@ -60,6 +58,28 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
       emit(state.copyWith(
         status: CatalogueStatus.error,
         errorMessage: 'Failed to load media. Please check your connection and try again.',
+      ));
+    }
+  }
+
+  void _onRefreshCatalogue(RefreshCatalogue event, Emitter<CatalogueState> emit) async {
+    emit(state.copyWith(status: CatalogueStatus.loading));
+    
+    try {
+      // Force refresh from Firebase (bypass cache)
+      final mediaList = await FirebaseService.refreshAllMedia();
+      
+      emit(state.copyWith(
+        status: CatalogueStatus.loaded,
+        allMedia: mediaList,
+        filteredMedia: mediaList,
+      ));
+    } catch (e, stackTrace) {
+      // Error occurred - show error state with retry option
+      logger.e('Failed to refresh catalogue: $e', stackTrace);
+      emit(state.copyWith(
+        status: CatalogueStatus.error,
+        errorMessage: 'Failed to refresh media. Please check your connection and try again.',
       ));
     }
   }

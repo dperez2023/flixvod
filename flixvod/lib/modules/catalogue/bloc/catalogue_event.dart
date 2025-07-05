@@ -12,6 +12,10 @@ class LoadCatalogue extends CatalogueEvent {
   
 }
 
+class RefreshCatalogue extends CatalogueEvent {
+  
+}
+
 class FilterByType extends CatalogueEvent {
   final MediaType? type;
 

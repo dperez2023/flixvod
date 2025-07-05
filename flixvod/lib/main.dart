@@ -17,10 +17,9 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     await FirebaseService.initialize();
-    print('✅ Firebase initialized successfully');
   } catch (e) {
-    print('❌ Firebase initialization failed: $e');
-    // Continue without Firebase for now
+    // It needs firebase to work, can't init
+    throw Exception('Firebase initialization failed: $e');
   }
   
   runApp(const MyApp());
