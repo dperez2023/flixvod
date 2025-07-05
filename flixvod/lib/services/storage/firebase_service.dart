@@ -3,7 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flixvod/logger.dart';
-import '../models/media.dart';
+import '../../models/media.dart';
 
 class FirebaseService {
   static FirebaseStorage get _storage => FirebaseStorage.instance;
