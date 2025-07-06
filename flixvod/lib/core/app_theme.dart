@@ -38,10 +38,10 @@ class AppTheme {
 
   // =================== COLORS ===================
   
-  /// Background colors - Dark theme with blue accents
+  /// Background colors - Dark theme with transparent overlays
   static const Color primaryBackgroundColor = Color(0xFF1A1A1A);
   static const Color secondaryBackgroundColor = Color(0xFF2A2A2A);
-  static const Color overlayBackgroundColor = Color(0xFF0D47A1);
+  static const Color overlayBackgroundColor = Color(0xAA000000); // Semi-transparent black instead of blue
   static const Color cardBackgroundColor = Color(0xFF333333);
   static const Color errorBackgroundColor = Color(0xFF4A1A1A);
 
@@ -74,10 +74,10 @@ class AppTheme {
   static Color seriesTypeColor = Colors.orange.withOpacity(0.8);
 
   /// Player colors
-  static Color playerBackgroundColor = Colors.blue.withOpacity(0.9);
+  static Color playerBackgroundColor = Colors.black; // Pure black instead of blue
   static const Color playerControlsColor = Colors.white;
   static Color playerBufferedColor = Colors.white.withOpacity(0.3);
-  static Color playerControlBackgroundColor = Colors.blue.withOpacity(0.6);
+  static Color playerControlBackgroundColor = Colors.black.withOpacity(0.6); // Black instead of blue
 
   /// Badge colors
   static Color ratingBadgeColor = Colors.blue.withOpacity(0.8);

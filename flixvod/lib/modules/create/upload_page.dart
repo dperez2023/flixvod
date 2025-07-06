@@ -29,6 +29,7 @@ class _UploadPageState extends State<UploadPage> {
   final List<String> _selectedGenres = [];
   double _selectedRating = 3.0;
   bool _isUploading = false;
+  double _uploadProgress = 0.0;
 
   final List<File?> _episodeVideos = [null];
   final List<String> _episodeTitles = [''];
@@ -155,6 +156,7 @@ class _UploadPageState extends State<UploadPage> {
 
     setState(() {
       _isUploading = true;
+      _uploadProgress = 0.0;
     });
 
     try {
@@ -256,6 +258,11 @@ class _UploadPageState extends State<UploadPage> {
         genres: _selectedGenres,
         rating: _selectedRating,
         thumbnailFile: _selectedThumbnail,
+        onProgress: (progress) {
+          setState(() {
+            _uploadProgress = progress;
+          });
+        },
       );
     } else {
       // Handle series upload with episodes
@@ -303,6 +310,11 @@ class _UploadPageState extends State<UploadPage> {
       genres: _selectedGenres,
       rating: _selectedRating,
       thumbnailFile: _selectedThumbnail,
+      onProgress: (progress) {
+        setState(() {
+          _uploadProgress = progress;
+        });
+      },
     );
   }
 
@@ -348,8 +360,9 @@ class _UploadPageState extends State<UploadPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(
+                CircularProgressIndicator(
                   color: AppTheme.primaryForegroundColor,
+                  value: _uploadProgress > 0 ? _uploadProgress : null,
                 ),
                 AppTheme.mediumVerticalSpacer,
                 Text(
@@ -359,6 +372,16 @@ class _UploadPageState extends State<UploadPage> {
                   style: AppTheme.primaryTextStyle.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
+                AppTheme.smallVerticalSpacer,
+                if (_uploadProgress > 0)
+                  Text(
+                    '${(_uploadProgress * 100).toStringAsFixed(0)}%',
+                    style: AppTheme.primaryTextStyle.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 AppTheme.smallVerticalSpacer,
                 Text(
                   "Please don't close the app while uploading",

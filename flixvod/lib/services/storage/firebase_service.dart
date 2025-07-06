@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flixvod/utils/logger.dart';
 import '../../models/media.dart';
 import '../../utils/video_duration_utils.dart';
@@ -65,6 +66,7 @@ class FirebaseService {
     required List<String> genres,
     required double rating,
     File? thumbnailFile,
+    Function(double)? onProgress,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -82,6 +84,7 @@ class FirebaseService {
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
         double progress = snapshot.bytesTransferred / snapshot.totalBytes;
         logger.i('Upload progress: ${(progress * 100).toStringAsFixed(0)}%');
+        onProgress?.call(progress);
       });
       
       final videoSnapshot = await uploadTask;
@@ -132,7 +135,10 @@ class FirebaseService {
 
       logger.i('✅ Media uploaded successfully: ${media.title} (${media.duration} minutes)');
       return media;
-    } catch (e) {
+    } on FirebaseException catch (e) {
+      throw _handleFirebaseException(e, 'upload');
+    } catch (e, s) {
+      logger.e('Unexpected error during upload: $e', s);
       throw Exception('Upload failed: $e');
     }
   }
@@ -145,6 +151,7 @@ class FirebaseService {
     required List<String> genres,
     required double rating,
     File? thumbnailFile,
+    Function(double)? onProgress,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -183,7 +190,10 @@ class FirebaseService {
         
         uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
           double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+          // Calculate overall progress (episode progress + completed episodes)
+          double overallProgress = (i + progress) / episodeFiles.length;
           logger.i('Episode $episodeNumber upload progress: ${(progress * 100).toStringAsFixed(0)}%');
+          onProgress?.call(overallProgress); // Call progress callback if provided
         });
         
         final episodeSnapshot = await uploadTask;
@@ -234,7 +244,10 @@ class FirebaseService {
 
       logger.i('✅ Series uploaded successfully: ${media.title} (${episodes.length} episodes, ${media.duration} minutes total)');
       return media;
+    } on FirebaseException catch (e) {
+      throw _handleFirebaseException(e, 'series upload');
     } catch (e) {
+      logger.e('Unexpected error during series upload: $e');
       throw Exception('Series upload failed: $e');
     }
   }
@@ -266,7 +279,10 @@ class FirebaseService {
               .toList() ?? [],
         );
       }).toList();
+    } on FirebaseException catch (e) {
+      throw _handleFirebaseException(e, 'load media');
     } catch (e) {
+      logger.e('Unexpected error loading media: $e');
       throw Exception('Failed to load media: $e');
     }
   }
@@ -570,6 +586,28 @@ class FirebaseService {
     } catch (e) {
       logger.e('Failed to fetch media by ID: $e');
       throw Exception('Failed to fetch media: $e');
+    }
+  }
+
+  /// Centralized Firebase exception handler
+  static Exception _handleFirebaseException(FirebaseException e, String operation) {
+    logger.e('Firebase error during $operation: ${e.code} - ${e.message}');
+    
+    switch (e.code) {
+      case 'network-request-failed':
+      case 'unavailable':
+        return Exception('No internet connection. Please check your network and try again.');
+      case 'timeout':
+      case 'deadline-exceeded':
+        return Exception('Operation timed out. Please check your connection and try again.');
+      case 'quota-exceeded':
+      case 'resource-exhausted':
+        return Exception('Storage quota exceeded. Please contact support.');
+      case 'unauthorized':
+      case 'permission-denied':
+        return Exception('Permission denied. Please check your authentication.');
+      default:
+        return Exception('$operation failed: ${e.message ?? e.code}');
     }
   }
 
