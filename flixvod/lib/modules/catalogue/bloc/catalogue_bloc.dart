@@ -4,7 +4,7 @@ import 'catalogue_state.dart';
 import '../../../models/media.dart';
 import '../../../services/storage/firebase_service.dart';
 import '../../../services/cache_service.dart';
-import '../../../logger.dart';
+import '../../../utils/logger.dart';
 
 class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
   CatalogueBloc() : super(const CatalogueState()) {
@@ -23,10 +23,12 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
       final cachedMedia = await CacheService.getCachedMediaList();
       
       if (cachedMedia != null && cachedMedia.isNotEmpty) {
+        final filteredData = _applyAllFilters(cachedMedia);
+        
         emit(state.copyWith(
           status: CatalogueStatus.loaded,
           allMedia: cachedMedia,
-          filteredMedia: cachedMedia,
+          filteredMedia: filteredData,
         ));
         return;
       }
@@ -37,11 +39,13 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
       if (mediaList.isNotEmpty) {
         // Cache the data for future use
         await CacheService.cacheMediaList(mediaList);
+
+        final filteredData = _applyAllFilters(mediaList);
         
         emit(state.copyWith(
           status: CatalogueStatus.loaded,
           allMedia: mediaList,
-          filteredMedia: mediaList,
+          filteredMedia: filteredData,
         ));
       } else {
         // No data available - show empty state
@@ -68,10 +72,13 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
     try {
       final mediaList = await FirebaseService.refreshAllMedia();
       
+      // Apply existing filters to the refreshed data
+      final filteredData = _applyAllFilters(mediaList);
+      
       emit(state.copyWith(
         status: CatalogueStatus.loaded,
         allMedia: mediaList,
-        filteredMedia: mediaList,
+        filteredMedia: filteredData,
       ));
     } catch (e, stackTrace) {
       // Error occurred - show error state with retry option
@@ -103,6 +110,7 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
     emit(state.copyWith(
       selectedFilter: event.type,
       filteredMedia: filtered,
+      clearSelectedFilter: event.type == null,
     ));
   }
 
@@ -132,6 +140,7 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
     emit(state.copyWith(
       selectedGenre: event.genre,
       filteredMedia: filtered,
+      clearSelectedGenre: event.genre == null,
     ));
   }
 
@@ -155,5 +164,27 @@ class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
       searchQuery: event.query,
       filteredMedia: filtered,
     ));
+  }
+
+  /// Helper method to apply all current filters to a list of media
+  List<Media> _applyAllFilters(List<Media> mediaList) {
+    List<Media> filtered = mediaList;
+    
+    if (state.selectedFilter != null) {
+      filtered = filtered.where((media) => media.type == state.selectedFilter).toList();
+    }
+
+    if (state.selectedGenre != null) {
+      filtered = filtered.where((media) => media.genres.contains(state.selectedGenre)).toList();
+    }
+
+    if (state.searchQuery.isNotEmpty) {
+      filtered = filtered.where((media) => 
+        media.title.toLowerCase().contains(state.searchQuery.toLowerCase()) ||
+        media.description.toLowerCase().contains(state.searchQuery.toLowerCase())
+      ).toList();
+    }
+    
+    return filtered;
   }
 }

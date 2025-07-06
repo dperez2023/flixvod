@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/app_theme.dart';
 
 class FilterChipsWidget<T> extends StatelessWidget {
   final List<T> availableOptions;
@@ -18,20 +19,15 @@ class FilterChipsWidget<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Don't show filter chips if there's only one option or no data
-    if (availableOptions.length <= 1) {
-      return const SizedBox.shrink();
-    }
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
       child: SizedBox(
         height: 40,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              // Always show "All" filter when there are multiple options
+              AppTheme.mediumHorizontalSpacer, 
               ChoiceChip(
                 label: Text(allLabel),
                 selected: selectedOption == null,
@@ -42,7 +38,7 @@ class FilterChipsWidget<T> extends StatelessWidget {
                 },
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              const SizedBox(width: 8),
+              AppTheme.mediumHorizontalSpacer,
               ...availableOptions.map((option) => [
                 ChoiceChip(
                   label: Text(getOptionLabel(context, option)),
@@ -54,8 +50,9 @@ class FilterChipsWidget<T> extends StatelessWidget {
                   },
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                const SizedBox(width: 8),
+                AppTheme.mediumHorizontalSpacer,
               ]).expand((widget) => widget),
+              AppTheme.mediumHorizontalSpacer,
             ],
           ),
         ),

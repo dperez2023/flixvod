@@ -20,7 +20,7 @@
     "description": "Tooltip for upload media button"
   },
   
-  "editMedia": "Edit Media",
+  "editMedia": "Edit",
   "@editMedia": {
     "description": "Title for edit media page"
   },
@@ -85,12 +85,7 @@
     "description": "Label for duration"
   },
   
-  "seasons": "seasons",
-  "@seasons": {
-    "description": "Label for seasons count"
-  },
-  
-  "episodes": "episodes", 
+  "episodes": "Episodes", 
   "@episodes": {
     "description": "Label for episodes count"
   },
@@ -100,7 +95,7 @@
     "description": "Abbreviation for minutes"
   },
   
-  "deleteMedia": "Delete Media",
+  "deleteMedia": "Delete",
   "@deleteMedia": {
     "description": "Title for delete media dialog"
   },

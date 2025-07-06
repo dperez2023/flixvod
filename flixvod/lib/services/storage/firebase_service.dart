@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flixvod/logger.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flixvod/utils/logger.dart';
 import '../../models/media.dart';
 import '../../utils/video_duration_utils.dart';
 import '../cache_service.dart';
@@ -13,6 +14,34 @@ class FirebaseService {
   static FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   static User? get currentUser => _auth.currentUser;
+
+  /// Centralized list of available genres for the application
+  /// This will eventually be fetched from Firebase directly
+  static const List<String> availableGenres = [
+    'Action',
+    'Adventure', 
+    'Animation',
+    'Comedy',
+    'Crime',
+    'Documentary',
+    'Drama',
+    'Family',
+    'Fantasy',
+    'History',
+    'Horror',
+    'Music',
+    'Mystery',
+    'Romance',
+    'Sci-Fi',
+    'Thriller',
+    'War',
+    'Western'
+  ];
+
+  static Future<List<String>> getAvailableGenres() async {
+    // TODO: Fetch from Firebase Firestore
+    return List<String>.from(availableGenres);
+  }
 
   static Future<void> signOut() async {
     await _auth.signOut();
@@ -37,6 +66,7 @@ class FirebaseService {
     required List<String> genres,
     required double rating,
     File? thumbnailFile,
+    Function(double)? onProgress,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -54,6 +84,7 @@ class FirebaseService {
       uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
         double progress = snapshot.bytesTransferred / snapshot.totalBytes;
         logger.i('Upload progress: ${(progress * 100).toStringAsFixed(0)}%');
+        onProgress?.call(progress);
       });
       
       final videoSnapshot = await uploadTask;
@@ -81,7 +112,6 @@ class FirebaseService {
         year: DateTime.now().year,
         rating: rating,
         genres: genres,
-        seasons: type == MediaType.series ? 1 : null,
         totalEpisodes: type == MediaType.series ? 1 : null,
         duration: videoDuration,
       );
@@ -96,7 +126,6 @@ class FirebaseService {
         'year': media.year,
         'rating': media.rating,
         'genres': genres,
-        'seasons': media.seasons,
         'totalEpisodes': media.totalEpisodes,
         'duration': media.duration,
         'userId': user.uid,
@@ -106,7 +135,10 @@ class FirebaseService {
 
       logger.i('✅ Media uploaded successfully: ${media.title} (${media.duration} minutes)');
       return media;
-    } catch (e) {
+    } on FirebaseException catch (e) {
+      throw _handleFirebaseException(e, 'upload');
+    } catch (e, s) {
+      logger.e('Unexpected error during upload: $e', s);
       throw Exception('Upload failed: $e');
     }
   }
@@ -119,6 +151,7 @@ class FirebaseService {
     required List<String> genres,
     required double rating,
     File? thumbnailFile,
+    Function(double)? onProgress,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -157,7 +190,10 @@ class FirebaseService {
         
         uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
           double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+          // Calculate overall progress (episode progress + completed episodes)
+          double overallProgress = (i + progress) / episodeFiles.length;
           logger.i('Episode $episodeNumber upload progress: ${(progress * 100).toStringAsFixed(0)}%');
+          onProgress?.call(overallProgress); // Call progress callback if provided
         });
         
         final episodeSnapshot = await uploadTask;
@@ -183,7 +219,6 @@ class FirebaseService {
         year: DateTime.now().year,
         rating: rating,
         genres: genres,
-        seasons: 1, // Currently supporting only 1 season
         totalEpisodes: episodes.length,
         duration: totalDuration,
         episodes: episodes,
@@ -199,7 +234,6 @@ class FirebaseService {
         'year': media.year,
         'rating': media.rating,
         'genres': genres,
-        'seasons': media.seasons,
         'totalEpisodes': media.totalEpisodes,
         'duration': media.duration,
         'episodes': episodes.map((e) => e.toJson()).toList(),
@@ -210,7 +244,10 @@ class FirebaseService {
 
       logger.i('✅ Series uploaded successfully: ${media.title} (${episodes.length} episodes, ${media.duration} minutes total)');
       return media;
+    } on FirebaseException catch (e) {
+      throw _handleFirebaseException(e, 'series upload');
     } catch (e) {
+      logger.e('Unexpected error during series upload: $e');
       throw Exception('Series upload failed: $e');
     }
   }
@@ -235,7 +272,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -243,7 +279,10 @@ class FirebaseService {
               .toList() ?? [],
         );
       }).toList();
+    } on FirebaseException catch (e) {
+      throw _handleFirebaseException(e, 'load media');
     } catch (e) {
+      logger.e('Unexpected error loading media: $e');
       throw Exception('Failed to load media: $e');
     }
   }
@@ -272,7 +311,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -412,7 +450,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -449,7 +486,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -499,11 +535,15 @@ class FirebaseService {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      if (type == MediaType.series && currentEpisodes != null) {
-        updateData['episodes'] = currentEpisodes;
-        updateData['totalEpisodes'] = currentEpisodes.length;
+      if (type == MediaType.series) {
+        if (currentEpisodes != null && currentEpisodes.isNotEmpty) {
+          updateData['episodes'] = currentEpisodes;
+          updateData['totalEpisodes'] = currentEpisodes.length;
+        } else {
+          throw Exception('Series must have episodes');
+        }
       } else {
-        throw Exception('Serie doesnt have episodes');
+        updateData['totalEpisodes'] = null;
       }
 
       // Update Firestore with the changes
@@ -537,7 +577,6 @@ class FirebaseService {
         year: data['year'],
         rating: (data['rating'] as num).toDouble(),
         genres: List<String>.from(data['genres']),
-        seasons: data['seasons'],
         totalEpisodes: data['totalEpisodes'],
         duration: data['duration'],
         episodes: (data['episodes'] as List<dynamic>?)
@@ -547,6 +586,28 @@ class FirebaseService {
     } catch (e) {
       logger.e('Failed to fetch media by ID: $e');
       throw Exception('Failed to fetch media: $e');
+    }
+  }
+
+  /// Centralized Firebase exception handler
+  static Exception _handleFirebaseException(FirebaseException e, String operation) {
+    logger.e('Firebase error during $operation: ${e.code} - ${e.message}');
+    
+    switch (e.code) {
+      case 'network-request-failed':
+      case 'unavailable':
+        return Exception('No internet connection. Please check your network and try again.');
+      case 'timeout':
+      case 'deadline-exceeded':
+        return Exception('Operation timed out. Please check your connection and try again.');
+      case 'quota-exceeded':
+      case 'resource-exhausted':
+        return Exception('Storage quota exceeded. Please contact support.');
+      case 'unauthorized':
+      case 'permission-denied':
+        return Exception('Permission denied. Please check your authentication.');
+      default:
+        return Exception('$operation failed: ${e.message ?? e.code}');
     }
   }
 

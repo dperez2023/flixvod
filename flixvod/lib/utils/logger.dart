@@ -6,8 +6,6 @@ class FlixLogger {
   static final FlixLogger _instance = FlixLogger._();
   static FlixLogger get instance => _instance;
   
-  static FlixLogger get I => _instance;
-  
   void d(dynamic message) {
     if (kDebugMode) {
       debugPrint('[FlixVOD] ${message.toString()}');

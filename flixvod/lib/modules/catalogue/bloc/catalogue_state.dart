@@ -33,13 +33,15 @@ class CatalogueState extends Equatable {
     String? selectedGenre,
     String? searchQuery,
     String? errorMessage,
+    bool clearSelectedFilter = false,
+    bool clearSelectedGenre = false,
   }) {
     return CatalogueState(
       status: status ?? this.status,
       allMedia: allMedia ?? this.allMedia,
       filteredMedia: filteredMedia ?? this.filteredMedia,
-      selectedFilter: selectedFilter ?? this.selectedFilter,
-      selectedGenre: selectedGenre ?? this.selectedGenre,
+      selectedFilter: clearSelectedFilter ? null : (selectedFilter ?? this.selectedFilter),
+      selectedGenre: clearSelectedGenre ? null : (selectedGenre ?? this.selectedGenre),
       searchQuery: searchQuery ?? this.searchQuery,
       errorMessage: errorMessage ?? this.errorMessage,
     );

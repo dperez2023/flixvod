@@ -1,5 +1,7 @@
 import 'package:flixvod/localization/localized.dart';
 import 'package:flutter/material.dart';
+import '../../core/app_theme.dart';
+import '../../core/app_icons.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
@@ -23,26 +25,27 @@ class EmptyStateWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
+          Icon(icon, size: 64, color: AppTheme.mutedForegroundColor),
+          AppTheme.mediumVerticalSpacer,
           Text(
             message,
-            style: const TextStyle(fontSize: 18, color: Colors.grey),
+            style: AppTheme.emptyStateTitleStyle,
           ),
           if (subtitle != null) ...[
-            const SizedBox(height: 8),
+            AppTheme.smallVerticalSpacer,
             Text(
               subtitle!,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              style: AppTheme.emptyStateSubtitleStyle,
               textAlign: TextAlign.center,
             ),
           ],
           if (onRefresh != null) ...[
-            const SizedBox(height: 24),
+            AppTheme.largeVerticalSpacer,
             ElevatedButton.icon(
               onPressed: onRefresh,
-              icon: const Icon(Icons.refresh),
+              icon: AppIcons.refresh,
               label: Text(refreshButtonText ?? Localized.of(context).refresh),
+              style: AppTheme.primaryElevatedButtonStyle,
             ),
           ],
         ],

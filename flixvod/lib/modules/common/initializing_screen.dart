@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_theme.dart';
 
 class InitializingScreen extends StatelessWidget {
   const InitializingScreen({super.key});
@@ -21,7 +22,7 @@ class InitializingScreen extends StatelessWidget {
                 size: 80,
                 color: Colors.deepPurple[300],
               ),
-              const SizedBox(height: 24),
+              AppTheme.largeVerticalSpacer,
               Text(
                 'FlixVOD',
                 style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -29,13 +30,13 @@ class InitializingScreen extends StatelessWidget {
                   color: Colors.deepPurple,
                 ),
               ),
-              const SizedBox(height: 32),
+              AppTheme.extraLargeVerticalSpacer,
               const CircularProgressIndicator(),
-              const SizedBox(height: 16),
+              AppTheme.mediumVerticalSpacer,
               Text(
                 'Initializing...',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Colors.grey[600],
+                  color: AppTheme.mutedForegroundColor,
                 ),
               ),
             ],
