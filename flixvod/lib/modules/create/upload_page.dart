@@ -227,33 +227,55 @@ class _UploadPageState extends State<UploadPage> {
           : Localized.of(context).uploadMedia),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          if (!_isUploading)
-            TextButton(
-              onPressed: _uploadMedia,
-              child: Text(editMode 
-                ? Localized.of(context).update 
-                : Localized.of(context).upload),
-            ),
+          TextButton(
+            onPressed: _uploadMedia,
+            child: Text(editMode 
+              ? Localized.of(context).update 
+              : Localized.of(context).upload),
+          ),
         ],
       ),
-      body: _isUploading
-          ? _buildUploadProgress()
-          : _buildUploadForm(),
+      body: Stack(
+        children: [
+          _buildUploadForm(),
+          if (_isUploading) _buildUploadOverlay(),
+        ],
+      ),
     );
   }
 
-  Widget _buildUploadProgress() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: 16),
-          Text(
-            'Uploading...',
-            style: Theme.of(context).textTheme.titleMedium,
+  Widget _buildUploadOverlay() {
+    return Container(
+      color: Colors.black.withOpacity(0.8),
+      child: Center(
+        child: Card(
+          margin: const EdgeInsets.all(32),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  editMode 
+                    ? 'Updating Media...'
+                    : 'Uploading Media...',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Please don't close the app while uploading",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
