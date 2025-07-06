@@ -79,6 +79,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   Future<void> _initializeVideoPlayer() async {
     try {
+      final primaryColor = Theme.of(context).primaryColor;
+      
       String? videoUrl = widget.media.videoUrl;
       
       if (videoUrl == null || videoUrl.isEmpty) {
@@ -118,8 +120,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         allowedScreenSleep: false,
         showControlsOnInitialize: false,
         materialProgressColors: ChewieProgressColors(
-          playedColor: Theme.of(context).primaryColor,
-          handleColor: Theme.of(context).primaryColor,
+          playedColor: primaryColor,
+          handleColor: primaryColor,
           backgroundColor: Colors.grey,
           bufferedColor: Colors.grey[300]!,
         ),
