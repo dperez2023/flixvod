@@ -8,6 +8,7 @@ import '../../../localization/localized.dart';
 import '../../common/notification_message_widget.dart';
 import '../bloc/catalogue_bloc.dart';
 import '../../../core/app_theme.dart';
+import '../../../core/app_icons.dart';
 
 class MediaCard extends StatelessWidget {
   final Media media;
@@ -138,11 +139,7 @@ class MediaCard extends StatelessWidget {
                             width: AppTheme.playButtonSize,
                             height: AppTheme.playButtonSize,
                             decoration: AppTheme.createPlayButtonDecoration(),
-                            child: Icon(
-                              Icons.play_arrow,
-                              color: AppTheme.whiteForegroundColor,
-                              size: AppTheme.largeIconSize,
-                            ),
+                            child: AppIcons.playCard,
                           ),
                         ),
                       ),

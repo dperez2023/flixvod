@@ -8,6 +8,7 @@ import '../bloc/catalogue_event.dart';
 import 'search_bar_widget.dart';
 import 'filter_chips_widget.dart';
 import '../../../core/app_theme.dart';
+import '../../../core/app_icons.dart';
 
 class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController searchController;
@@ -29,7 +30,7 @@ class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidg
       actions: [
         IconButton(
           onPressed: onUpload,
-          icon: const Icon(Icons.add),
+          icon: AppIcons.add,
           tooltip: Localized.of(context).uploadMedia,
         ),
       ],

@@ -1,6 +1,7 @@
 import 'package:flixvod/localization/localized.dart';
 import 'package:flutter/material.dart';
 import '../../../core/app_theme.dart';
+import '../../../core/app_icons.dart';
 
 class SearchBarWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -20,7 +21,7 @@ class SearchBarWidget extends StatelessWidget {
         controller: controller,
         decoration: InputDecoration(
           hintText: Localized.of(context).searchMoviesAndSeries,
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: AppIcons.search,
           border: const OutlineInputBorder(),
           contentPadding: AppTheme.formFieldPadding,
         ),
