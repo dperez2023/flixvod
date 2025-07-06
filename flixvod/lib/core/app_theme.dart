@@ -211,17 +211,19 @@ class AppTheme {
 
   // =================== BUTTON STYLES ===================
   
-  /// Primary elevated button style (blue background)
+  /// Primary outlined button style (blue border and text)
   static ButtonStyle primaryElevatedButtonStyle = ElevatedButton.styleFrom(
-    backgroundColor: overlayBackgroundColor,
-    foregroundColor: primaryForegroundColor,
+    backgroundColor: Colors.transparent,
+    foregroundColor: movieTypeColor,
+    side: BorderSide(color: movieTypeColor),
     padding: buttonPadding,
   );
 
-  /// Error elevated button style (red background)
+  /// Error outlined button style (red border and text)
   static ButtonStyle errorElevatedButtonStyle = ElevatedButton.styleFrom(
-    backgroundColor: errorColor,
-    foregroundColor: whiteForegroundColor,
+    backgroundColor: Colors.transparent,
+    foregroundColor: errorColor,
+    side: BorderSide(color: errorColor),
     padding: buttonPadding,
   );
 
