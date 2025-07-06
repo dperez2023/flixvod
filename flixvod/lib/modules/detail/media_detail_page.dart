@@ -205,36 +205,35 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                   
                   const SizedBox(height: 32),
                   
-                  // Edit Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _navigateToEditPage(context),
-                      icon: const Icon(Icons.edit),
-                      label: Text(Localized.of(context).editMedia),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _navigateToEditPage(context),
+                          icon: const Icon(Icons.edit),
+                          label: Text(Localized.of(context).editMedia),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Delete Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () => _showDeleteConfirmation(context),
-                      icon: const Icon(Icons.delete),
-                      label: Text(Localized.of(context).deleteMedia),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      const SizedBox(width: 16),
+                      
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _showDeleteConfirmation(context),
+                          icon: const Icon(Icons.delete),
+                          label: Text(Localized.of(context).deleteMedia),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   
                   const SizedBox(height: 32),
@@ -280,7 +279,10 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
   }
 
   Future<void> _deleteMedia(BuildContext context) async {
-    // Show loading indicator
+    final catalogueBloc = context.read<CatalogueBloc>();
+    final successMessage = Localized.of(context).deleted(currentMedia.title);
+    final l10n = Localized.of(context);
+    
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -302,16 +304,14 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
       // Close loading dialog
       if (context.mounted) Navigator.of(context).pop();
       
-      // Refresh catalogue
-      if (context.mounted) {
-        context.read<CatalogueBloc>().add(RefreshCatalogue());
-      }
+      // Refresh catalogue with catalogueBloc
+      catalogueBloc.add(RefreshCatalogue());
       
-      // Show success message
+      // Show success message using pre-captured string
       if (context.mounted) {
         NotificationMessageWidget.showSuccess(
           context,
-          Localized.of(context).deleted(currentMedia.title),
+          successMessage,
         );
       }
       
@@ -329,7 +329,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
       if (context.mounted) {
         NotificationMessageWidget.showError(
           context,
-          Localized.of(context).failedToDelete(e.toString()),
+          l10n.failedToDelete(e.toString()),
         );
       }
     }
@@ -337,6 +337,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
 
   void _navigateToEditPage(BuildContext context) async {
     final catalogueBloc = context.read<CatalogueBloc>();
+    
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => BlocProvider.value(
@@ -347,16 +348,12 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
     );
     
     if (result == true && context.mounted) {
-      context.read<CatalogueBloc>().add(RefreshCatalogue());
+      // Use the captured bloc reference instead of accessing context again
+      catalogueBloc.add(RefreshCatalogue());
       
       // Reload the current media data to show updated values
       await _reloadMediaData();
       
-      // Show success message
-      NotificationMessageWidget.showSuccess(
-        context,
-        Localized.of(context).successfullyUpdated(currentMedia.title),
-      );
     }
   }
 
