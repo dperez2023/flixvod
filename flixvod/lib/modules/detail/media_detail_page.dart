@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/media.dart';
 import '../../localization/localized.dart';
-import '../../services/storage/firebase_service.dart';
-import '../../utils/logger.dart';
 import '../player/video_player_screen.dart';
-import '../common/notification_message_widget.dart';
 import '../catalogue/bloc/catalogue_bloc.dart';
 import '../catalogue/bloc/catalogue_event.dart';
 import '../create/upload_page.dart';
 import '../../core/app_theme.dart';
 import '../../core/app_icons.dart';
+import '../../utils/logger.dart';
+import 'bloc/media_detail_bloc.dart';
+import 'bloc/media_detail_event.dart';
+import 'bloc/media_detail_state.dart';
 
-class MediaDetailPage extends StatefulWidget {
+class MediaDetailPage extends StatelessWidget {
   final Media media;
 
   const MediaDetailPage({
@@ -21,20 +22,103 @@ class MediaDetailPage extends StatefulWidget {
   });
 
   @override
-  State<MediaDetailPage> createState() => _MediaDetailPageState();
-}
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => MediaDetailBloc()..add(LoadMediaDetailEvent(media.id)),
+      child: BlocConsumer<MediaDetailBloc, MediaDetailState>(
+        listener: (context, state) {
+          // Handle navigation when navigation action is triggered
+          if (state.navigationAction == NavigationAction.navigateToVideoPlayer) {
+            if (state.navigationMedia != null) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => VideoPlayerScreen(
+                    media: state.navigationMedia!,
+                  ),
+                ),
+              ).then((_) {
+                // Clear navigation action after returning from video player
+                if (context.mounted) {
+                  context.read<MediaDetailBloc>().add(const ClearNavigationEvent());
+                }
+              });
+            }
+          }
 
-class _MediaDetailPageState extends State<MediaDetailPage> {
-  late Media currentMedia;
+          if (state.status == MediaDetailStatus.error && state.errorMessage != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          if (state.status == MediaDetailStatus.deleted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(Localized.of(context).delete),
+                backgroundColor: Colors.green,
+              ),
+            );
 
-  @override
-  void initState() {
-    super.initState();
-    currentMedia = widget.media;
+            try {
+              final catalogueBloc = context.read<CatalogueBloc>();
+              catalogueBloc.add(LoadCatalogue());
+            } catch (e) {
+              // CatalogueBloc might not be available in this context
+              FlixLogger.instance.d('CatalogueBloc not available for refresh');
+            }
+          }
+        },
+        builder: (context, state) {
+          // Show loading state
+          if (state.status == MediaDetailStatus.loading || state.media == null) {
+            return Scaffold(
+              appBar: AppBar(),
+              body: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          // Show error state
+          if (state.status == MediaDetailStatus.error) {
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Error'),
+              ),
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      state.errorMessage ?? 'An error occurred',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<MediaDetailBloc>().add(LoadMediaDetailEvent(media.id));
+                      },
+                      child: Text(Localized.of(context).retry),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Use the loaded media from state, fallback to passed media
+          final currentMedia = state.media ?? media;
+
+          return _buildMediaDetailContent(context, state, currentMedia);
+        },
+      ),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {    
+  Widget _buildMediaDetailContent(BuildContext context, MediaDetailState state, Media currentMedia) {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -50,7 +134,6 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                         image: NetworkImage(currentMedia.imageUrl),
                         fit: BoxFit.cover,
                         onError: (exception, stackTrace) {
-                          // Handle image loading errors
                           debugPrint('Error loading image: $exception');
                         },
                       )
@@ -82,6 +165,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       decoration: AppTheme.createGradientOverlayDecoration(),
                     ),
 
+                    // Play button for movies
                     if (currentMedia.isMovie) 
                       Center(
                         child: Container(
@@ -90,10 +174,8 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                           decoration: AppTheme.createPlayButtonDecoration(),
                           child: IconButton(
                             onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => VideoPlayerScreen(media: currentMedia),
-                                ),
+                              context.read<MediaDetailBloc>().add(
+                                PlayVideoEvent(currentMedia),
                               );
                             },
                             icon: AppIcons.playCard,
@@ -197,7 +279,6 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                   AppTheme.largeVerticalSpacer,
                   
                   // Description
-                  AppTheme.smallVerticalSpacer,
                   Text(
                     currentMedia.description,
                     style: Theme.of(context).textTheme.bodyLarge,
@@ -210,39 +291,12 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                   
                   // Episodes section (only for series)
                   if (currentMedia.isSeries && currentMedia.episodes.isNotEmpty) ...[
-                    Text(
-                      Localized.of(context).episodes,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
                     AppTheme.mediumVerticalSpacer,
-                    _buildEpisodesSection(),
-                    AppTheme.extraLargeVerticalSpacer,
+                    _buildEpisodesList(context, currentMedia),
                   ],
                   
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _navigateToEditPage(context),
-                          icon: AppIcons.edit,
-                          label: Text(Localized.of(context).editMedia),
-                          style: AppTheme.primaryElevatedButtonStyle,
-                        ),
-                      ),
-                      AppTheme.extraLargeHorizontalSpacer,
-                      
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: () => _showDeleteConfirmation(context),
-                          icon: AppIcons.delete,
-                          label: Text(Localized.of(context).deleteMedia),
-                          style: AppTheme.errorElevatedButtonStyle,
-                        ),
-                      ),
-                    ],
-                  ),
+                  AppTheme.extraLargeVerticalSpacer,
+                  _buildActionButtons(context, state, currentMedia),
                   
                   AppTheme.extraLargeVerticalSpacer,
                 ],
@@ -254,156 +308,19 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
     );
   }
 
-  /// Shows a confirmation dialog before deleting the media
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: Text(Localized.of(context).deleteMedia),
-          content: Text(
-            Localized.of(context).deleteConfirmation(currentMedia.title),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(Localized.of(context).cancel),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                await _deleteMedia(context);
-              },
-              style: AppTheme.errorElevatedButtonStyle,
-              child: Text(Localized.of(context).delete),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _deleteMedia(BuildContext context) async {
-    final catalogueBloc = context.read<CatalogueBloc>();
-    final successMessage = Localized.of(context).deleted(currentMedia.title);
-    final l10n = Localized.of(context);
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-
-    try {
-      // Delete media from Firebase
-      await FirebaseService.deleteMedia(currentMedia.id);
-      
-      // Verify deletion
-      final stillExists = await FirebaseService.mediaExists(currentMedia.id);
-      if (stillExists) {
-        logger.w('Media still exists after deletion attempt');
-      }
-      
-      // Close loading dialog
-      if (context.mounted) Navigator.of(context).pop();
-      
-      // Refresh catalogue with catalogueBloc
-      catalogueBloc.add(RefreshCatalogue());
-      
-      // Show success message using pre-captured string
-      if (context.mounted) {
-        NotificationMessageWidget.showSuccess(
-          context,
-          successMessage,
-        );
-      }
-      
-      // Navigate back to catalogue
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-    } catch (e) {
-      logger.e('Delete error: $e');
-      
-      // Close loading dialog
-      if (context.mounted) Navigator.of(context).pop();
-      
-      // Show error message
-      if (context.mounted) {
-        NotificationMessageWidget.showError(
-          context,
-          l10n.failedToDelete(e.toString()),
-        );
-      }
-    }
-  }
-
-  void _navigateToEditPage(BuildContext context) async {
-    final catalogueBloc = context.read<CatalogueBloc>();
-    
-    final result = await Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => BlocProvider.value(
-          value: catalogueBloc,
-          child: UploadPage(mediaToEdit: currentMedia),
-        ),
-      ),
-    );
-    
-    if (result == true && context.mounted) {
-      // Use the captured bloc reference instead of accessing context again
-      catalogueBloc.add(RefreshCatalogue());
-      
-      // Reload the current media data to show updated values
-      await _reloadMediaData();
-      
-    }
-  }
-
-  /// Reloads the media data from Firebase to show updated values
-  Future<void> _reloadMediaData() async {
-    try {
-      final updatedMedia = await FirebaseService.getMediaById(currentMedia.id);
-      if (updatedMedia != null && mounted) {
-        setState(() {
-          currentMedia = updatedMedia;
-        });
-        logger.i('✅ Media data reloaded successfully');
-      }
-    } catch (e) {
-      logger.e('Failed to reload media data: $e');
-      // The old data is still displayed (But failed)
-    }
-  }
-
-  Widget _buildEpisodesSection() {
+  Widget _buildEpisodesList(BuildContext context, Media currentMedia) {
     return Column(
-      children: currentMedia.episodes.asMap().entries.map((entry) {
-        final index = entry.key;
-        final episode = entry.value;
-        final isFirst = index == 0;
-        
+      children: currentMedia.episodes.map((episode) {
         return Card(
-          margin: const EdgeInsets.only(bottom: AppTheme.smallVerticalSpacerHeight),
-          child: ExpansionTile(
-            //First episode is expanded by default whereas others are collapsed
-            initiallyExpanded: isFirst,
-            leading: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Center(
-                child: Text(
-                  episode.episodeNumber.toString(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Text(
+                '${episode.episodeNumber}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -412,108 +329,101 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
-            children: [
-              Padding(
-                padding: AppTheme.standardPadding,
-                child: Column(
-                  children: [
-                    // Episode thumbnail (using same image as series)
-                    Container(
-                      width: double.infinity,
-                      height: 150,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: currentMedia.hasValidImageUrl 
-                          ? DecorationImage(
-                              image: NetworkImage(currentMedia.imageUrl),
-                              fit: BoxFit.cover,
-                              onError: (exception, stackTrace) {
-                                debugPrint('Error loading episode image: $exception');
-                              },
-                            )
-                          : null,
-                        color: currentMedia.hasValidImageUrl ? null : AppTheme.cardBackgroundColor,
-                      ),
-                      child: Stack(
-                        children: [
-                          if (!currentMedia.hasValidImageUrl)
-                            const Center(
-                              child: AppIcons.videoLibraryMedium,
-                            ),
-                          // Dark overlay
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              color: Colors.black.withOpacity(0.3),
-                            ),
-                          ),
-                          // Play button
-                          Center(
-                            child: GestureDetector(
-                              onTap: () => _playEpisode(episode.episodeNumber),
-                              child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.7),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.play_arrow,
-                                  color: Colors.white,
-                                  size: 32,
-                                ),
-                              ),
-                            ),
-                          ),
-                          // Episode number overlay
-                          Positioned(
-                            top: 8,
-                            left: 8,
-                            child: Container(
-                              padding: AppTheme.badgePadding,
-                              decoration: AppTheme.createBadgeDecoration(AppTheme.ratingBadgeColor),
-                              child: Text(
-                                'Episode ${episode.episodeNumber}',
-                                style: AppTheme.episodeBadgeTextStyle,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    AppTheme.mediumVerticalSpacer,
-                  ],
-                ),
-              ),
-            ],
+            trailing: IconButton(
+              icon: AppIcons.play,
+              onPressed: () {
+                context.read<MediaDetailBloc>().add(
+                  PlayVideoEvent(currentMedia, episodeNumber: episode.episodeNumber),
+                );
+              },
+            ),
+            onTap: () {
+              context.read<MediaDetailBloc>().add(
+                PlayVideoEvent(currentMedia, episodeNumber: episode.episodeNumber),
+              );
+            },
           ),
         );
       }).toList(),
     );
   }
 
-  void _playEpisode(int episodeNumber) {
-    // Media copy to navigate (original stays the same)
-    final episodeMedia = Media(
-      id: currentMedia.id,
-      title: '${currentMedia.title} - Episode $episodeNumber',
-      description: currentMedia.description,
-      imageUrl: currentMedia.imageUrl,
-      type: currentMedia.type,
-      year: currentMedia.year,
-      rating: currentMedia.rating,
-      genres: currentMedia.genres,
-      totalEpisodes: currentMedia.totalEpisodes,
-      duration: currentMedia.duration,
-      videoUrl: currentMedia.getVideoUrl(episodeNumber),
-      episodes: currentMedia.episodes,
+  Widget _buildActionButtons(BuildContext context, MediaDetailState state, Media currentMedia) {
+    return Column(
+      children: [        
+        AppTheme.mediumVerticalSpacer,
+        // Edit and Delete buttons
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _navigateToEditPage(context, currentMedia),
+                icon: AppIcons.edit,
+                label: Text(Localized.of(context).editMedia),
+              ),
+            ),
+            AppTheme.mediumHorizontalSpacer,
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: state.isDeleting ? null : () => _showDeleteConfirmation(context, currentMedia),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                ),
+                icon: state.isDeleting 
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : AppIcons.delete,
+                label: Text(Localized.of(context).delete),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
+  }
 
+  void _navigateToEditPage(BuildContext context, Media currentMedia) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => VideoPlayerScreen(media: episodeMedia),
+        builder: (context) => UploadPage(mediaToEdit: currentMedia),
+      ),
+    ).then((_) {
+      // Refresh media detail after edit
+      if (context.mounted) {
+        context.read<MediaDetailBloc>().add(RefreshMediaDetailEvent(currentMedia.id));
+      }
+    });
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Media currentMedia) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(Localized.of(context).deleteMedia),
+        content: Text(Localized.of(context).deleteConfirmation(currentMedia.title)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(Localized.of(context).cancel),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              context.read<MediaDetailBloc>().add(DeleteMediaEvent(currentMedia.id));
+            },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
+            ),
+            child: Text(Localized.of(context).delete),
+          ),
+        ],
       ),
     );
   }

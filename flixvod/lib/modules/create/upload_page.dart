@@ -466,11 +466,12 @@ class _UploadPageState extends State<UploadPage> {
               ),
               AppTheme.mediumVerticalSpacer,
 
+              _buildStarRating(),
+              AppTheme.mediumVerticalSpacer,
               _buildGenreSelector(),
               AppTheme.mediumVerticalSpacer,
 
-              _buildStarRating(),
-              AppTheme.mediumVerticalSpacer,
+              
             ],
           ),
         ),
