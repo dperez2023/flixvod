@@ -1,27 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'modules/catalogue/bloc/catalogue_bloc.dart';
-import 'modules/catalogue/pages/catalogue_page.dart';
-import 'services/storage/firebase_service.dart';
-import 'services/storage/firebase_options.dart';
+import 'core/app_initializer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-    await FirebaseService.initialize();
-  } catch (e) {
-    // It needs firebase to work, can't init
-    throw Exception('Firebase initialization failed: $e');
-  }
-  
   runApp(const MyApp());
 }
 
@@ -45,10 +28,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: BlocProvider(
-        create: (context) => CatalogueBloc(),
-        child: const CataloguePage(),
-      ),
+      home: const AppInitializer(),
     );
   }
 }

@@ -59,7 +59,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       ],
                     ),
                   ),
-                  child: Center(
+                  child: currentMedia.isMovie ? Center(
                     child: Container(
                       width: 80,
                       height: 80,
@@ -82,7 +82,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                         ),
                       ),
                     ),
-                  ),
+                  ) : null,
                 ),
               ),
             ),
@@ -204,6 +204,19 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                   ),
                   
                   const SizedBox(height: 32),
+                  
+                  // Episodes section (only for series)
+                  if (currentMedia.isSeries && currentMedia.episodes.isNotEmpty) ...[
+                    Text(
+                      Localized.of(context).episodes,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildEpisodesSection(),
+                    const SizedBox(height: 32),
+                  ],
                   
                   Row(
                     children: [
@@ -371,5 +384,160 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
       logger.e('Failed to reload media data: $e');
       // The old data is still displayed (But failed)
     }
+  }
+
+  Widget _buildEpisodesSection() {
+    return Column(
+      children: currentMedia.episodes.asMap().entries.map((entry) {
+        final index = entry.key;
+        final episode = entry.value;
+        final isFirst = index == 0;
+        
+        return Card(
+          margin: const EdgeInsets.only(bottom: 8),
+          child: ExpansionTile(
+            //First episode is expanded by default whereas others are collapsed
+            initiallyExpanded: isFirst,
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  episode.episodeNumber.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            title: Text(
+              'Episode ${episode.episodeNumber}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    // Episode thumbnail (using same image as series)
+                    Container(
+                      width: double.infinity,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: NetworkImage(currentMedia.imageUrl),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Dark overlay
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.black.withOpacity(0.3),
+                            ),
+                          ),
+                          // Play button
+                          Center(
+                            child: GestureDetector(
+                              onTap: () => _playEpisode(episode.episodeNumber),
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.7),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.play_arrow,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Episode number overlay
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.black87,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                'EP ${episode.episodeNumber}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Play button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => _playEpisode(episode.episodeNumber),
+                        icon: const Icon(Icons.play_arrow),
+                        label: Text('Play Episode ${episode.episodeNumber}'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  void _playEpisode(int episodeNumber) {
+    // Media copy to navigate (original stays the same)
+    final episodeMedia = Media(
+      id: currentMedia.id,
+      title: '${currentMedia.title} - Episode $episodeNumber',
+      description: currentMedia.description,
+      imageUrl: currentMedia.imageUrl,
+      type: currentMedia.type,
+      year: currentMedia.year,
+      rating: currentMedia.rating,
+      genres: currentMedia.genres,
+      seasons: currentMedia.seasons,
+      totalEpisodes: currentMedia.totalEpisodes,
+      duration: currentMedia.duration,
+      videoUrl: currentMedia.getVideoUrl(episodeNumber),
+      episodes: currentMedia.episodes,
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => VideoPlayerScreen(media: episodeMedia),
+      ),
+    );
   }
 }

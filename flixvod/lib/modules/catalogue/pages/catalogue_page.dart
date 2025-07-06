@@ -32,8 +32,52 @@ class _CataloguePageState extends State<CataloguePage> {
     super.dispose();
   }
 
-  void _refreshCatalogue() {
-    context.read<CatalogueBloc>().add(LoadCatalogue());
+  bool _isRefreshing = false;
+
+  Future<void> _refreshCatalogue() async {
+    if (_isRefreshing) return;
+    
+    setState(() {
+      _isRefreshing = true;
+    });
+    
+    final bloc = context.read<CatalogueBloc>();
+    final currentState = bloc.state;
+
+    
+    final searchQuery = currentState.searchQuery;
+    final typeFilter = currentState.selectedFilter;
+    final genreFilter = currentState.selectedGenre;
+    
+    try {
+      bloc.add(LoadCatalogue());
+      
+      // Waits for the catalogue to load, then apply filters
+      await bloc.stream.firstWhere((state) => 
+        state.status == CatalogueStatus.loaded || state.status == CatalogueStatus.error
+      );
+      
+      // Only reapply filters if load was successful
+      if (bloc.state.status == CatalogueStatus.loaded) {
+        if (typeFilter != null) {
+          bloc.add(FilterByType(typeFilter));
+          await Future.delayed(const Duration(milliseconds: 50));
+        }
+        
+        if (genreFilter != null) {
+          bloc.add(FilterByGenre(genreFilter));
+          await Future.delayed(const Duration(milliseconds: 50));
+        }
+        
+        if (searchQuery.isNotEmpty) {
+          bloc.add(SearchMedia(searchQuery));
+        }
+      }
+    } finally {
+      setState(() {
+        _isRefreshing = false;
+      });
+    }
   }
 
   Future<void> _navigateToUpload() async {
@@ -55,11 +99,14 @@ class _CataloguePageState extends State<CataloguePage> {
         onSearchChanged: (query) {
           context.read<CatalogueBloc>().add(SearchMedia(query));
         },
-        onRefresh: _refreshCatalogue,
         onUpload: _navigateToUpload,
       ),
       body: BlocBuilder<CatalogueBloc, CatalogueState>(
         builder: (context, state) {
+          if (_isRefreshing) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
           switch (state.status) {
             case CatalogueStatus.initial:
             case CatalogueStatus.loading:
@@ -77,20 +124,37 @@ class _CataloguePageState extends State<CataloguePage> {
               if (state.filteredMedia.isEmpty) {
                 // Check if this is due to search/filter or no data
                 if (state.allMedia.isEmpty) {
-                  // Empty state with refresh
-                  return EmptyStateWidget(
-                    icon: Icons.video_library_outlined,
-                    message: Localized.of(context).noMediaAvailable,
-                    subtitle: Localized.of(context).noMediaAvailableSubtitle,
+                  return RefreshIndicator(
                     onRefresh: _refreshCatalogue,
-                    refreshButtonText: Localized.of(context).refresh,
+                    child: ListView(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: EmptyStateWidget(
+                            icon: Icons.video_library_outlined,
+                            message: Localized.of(context).noMediaAvailable,
+                            subtitle: Localized.of(context).noMediaAvailableSubtitle,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 } else {
                   // Has data but filtered out - show search/filter empty state
-                  return EmptyStateWidget(
-                    icon: Icons.search_off,
-                    message: Localized.of(context).noMediaFound,
-                    subtitle: Localized.of(context).noMediaFoundSubtitle,
+                  return RefreshIndicator(
+                    onRefresh: _refreshCatalogue,
+                    child: ListView(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: EmptyStateWidget(
+                            icon: Icons.search_off,
+                            message: Localized.of(context).noMediaFound,
+                            subtitle: Localized.of(context).noMediaFoundSubtitle,
+                          ),
+                        ),
+                      ],
+                    ),
                   );
                 }
               }

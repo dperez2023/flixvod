@@ -111,6 +111,110 @@ class FirebaseService {
     }
   }
 
+  // Upload series with multiple episodes
+  static Future<Media> uploadSeries({
+    required List<File> episodeFiles,
+    required String title,
+    required String description,
+    required List<String> genres,
+    required double rating,
+    File? thumbnailFile,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) throw Exception('User not authenticated');
+
+      if (episodeFiles.isEmpty) {
+        throw Exception('At least one episode is required for series');
+      }
+
+      if (episodeFiles.length > 4) {
+        throw Exception('Maximum 4 episodes allowed per series');
+      }
+
+      final seriesId = DateTime.now().millisecondsSinceEpoch.toString();
+
+      // Upload thumbnail if provided
+      String? thumbnailUrl;
+      if (thumbnailFile != null) {
+        final thumbRef = _storage.ref().child('thumbnails/$seriesId.jpg');
+        final thumbSnapshot = await thumbRef.putFile(thumbnailFile);
+        thumbnailUrl = await thumbSnapshot.ref.getDownloadURL();
+      }
+
+      // Upload all episodes
+      List<Episode> episodes = [];
+      int totalDuration = 0;
+      
+      for (int i = 0; i < episodeFiles.length; i++) {
+        final episodeFile = episodeFiles[i];
+        final episodeNumber = i + 1;
+        final episodeFileName = '${seriesId}_episode_$episodeNumber.mp4';
+        
+        // Upload episode video
+        final episodeRef = _storage.ref().child('videos/$episodeFileName');
+        final uploadTask = episodeRef.putFile(episodeFile);
+        
+        uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+          double progress = snapshot.bytesTransferred / snapshot.totalBytes;
+          logger.i('Episode $episodeNumber upload progress: ${(progress * 100).toStringAsFixed(0)}%');
+        });
+        
+        final episodeSnapshot = await uploadTask;
+        final episodeUrl = await episodeSnapshot.ref.getDownloadURL();
+        
+        // Get episode duration
+        int episodeDuration = await VideoDurationUtils.getVideoDurationInMinutes(episodeFile) ?? 0;
+        totalDuration += episodeDuration;
+        
+        episodes.add(Episode(
+          episodeNumber: episodeNumber,
+          videoUrl: episodeUrl,
+        ));
+      }
+
+      // Create Media object for the series
+      final media = Media(
+        id: seriesId,
+        title: title,
+        description: description,
+        imageUrl: thumbnailUrl ?? '',
+        type: MediaType.series,
+        year: DateTime.now().year,
+        rating: rating,
+        genres: genres,
+        seasons: 1, // Currently supporting only 1 season
+        totalEpisodes: episodes.length,
+        duration: totalDuration,
+        episodes: episodes,
+      );
+
+      // Save to Firestore
+      await _firestore.collection('media').doc(seriesId).set({
+        'id': seriesId,
+        'title': title,
+        'description': description,
+        'imageUrl': media.imageUrl,
+        'type': MediaType.series.toString(),
+        'year': media.year,
+        'rating': media.rating,
+        'genres': genres,
+        'seasons': media.seasons,
+        'totalEpisodes': media.totalEpisodes,
+        'duration': media.duration,
+        'episodes': episodes.map((e) => e.toJson()).toList(),
+        'userId': user.uid,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      logger.i('✅ Series uploaded successfully: ${media.title} (${episodes.length} episodes, ${media.duration} minutes total)');
+      return media;
+    } catch (e) {
+      throw Exception('Series upload failed: $e');
+    }
+  }
+
   // PLAY: Get all videos for streaming
   static Future<List<Media>> getAllMedia() async {
     try {
@@ -134,6 +238,9 @@ class FirebaseService {
           seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
+          episodes: (data['episodes'] as List<dynamic>?)
+              ?.map((e) => Episode.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [],
         );
       }).toList();
     } catch (e) {
@@ -168,6 +275,9 @@ class FirebaseService {
           seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
+          episodes: (data['episodes'] as List<dynamic>?)
+              ?.map((e) => Episode.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [],
         );
       }).toList();
     } catch (e) {
@@ -202,12 +312,31 @@ class FirebaseService {
       // First, delete metadata from Firestore to prevent race conditions
       await _firestore.collection('media').doc(mediaId).delete();
 
-      // Then delete video file from Storage
+      // Then delete video files from Storage
       try {
-        final videoUrl = data['videoUrl'] as String?;
-        if (videoUrl != null && videoUrl.isNotEmpty && videoUrl.contains('firebasestorage')) {
-          final videoRef = _storage.refFromURL(videoUrl);
-          await videoRef.delete();
+        // Handle episodes for series
+        final episodes = data['episodes'] as List<dynamic>?;
+        if (episodes != null && episodes.isNotEmpty) {
+          // Series with episodes - delete each episode video
+          for (final episode in episodes) {
+            final episodeData = episode as Map<String, dynamic>;
+            final videoUrl = episodeData['videoUrl'] as String?;
+            if (videoUrl != null && videoUrl.isNotEmpty && videoUrl.contains('firebasestorage')) {
+              try {
+                final videoRef = _storage.refFromURL(videoUrl);
+                await videoRef.delete();
+              } catch (e) {
+                logger.e('Episode video file deletion failed: $e');
+              }
+            }
+          }
+        } else {
+          // Single video (movie or legacy series)
+          final videoUrl = data['videoUrl'] as String?;
+          if (videoUrl != null && videoUrl.isNotEmpty && videoUrl.contains('firebasestorage')) {
+            final videoRef = _storage.refFromURL(videoUrl);
+            await videoRef.delete();
+          }
         }
       } catch (e) {
         logger.e('Video file deletion failed: $e');
@@ -286,6 +415,9 @@ class FirebaseService {
           seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
+          episodes: (data['episodes'] as List<dynamic>?)
+              ?.map((e) => Episode.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [],
         );
       }).toList();
     } catch (e) {
@@ -320,6 +452,9 @@ class FirebaseService {
           seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
+          episodes: (data['episodes'] as List<dynamic>?)
+              ?.map((e) => Episode.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [],
         );
       }).toList();
 
@@ -345,6 +480,15 @@ class FirebaseService {
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
+      // Get current media to preserve episode data
+      final currentDoc = await _firestore.collection('media').doc(mediaId).get();
+      if (!currentDoc.exists) {
+        throw Exception('Media not found');
+      }
+
+      final currentData = currentDoc.data()!;
+      final currentEpisodes = currentData['episodes'] as List<dynamic>?;
+
       // Prepare update data
       final updateData = <String, dynamic>{
         'title': title,
@@ -354,6 +498,13 @@ class FirebaseService {
         'rating': rating,
         'updatedAt': FieldValue.serverTimestamp(),
       };
+
+      if (type == MediaType.series && currentEpisodes != null) {
+        updateData['episodes'] = currentEpisodes;
+        updateData['totalEpisodes'] = currentEpisodes.length;
+      } else {
+        throw Exception('Serie doesnt have episodes');
+      }
 
       // Update Firestore with the changes
       await _firestore.collection('media').doc(mediaId).update(updateData);
@@ -389,6 +540,9 @@ class FirebaseService {
         seasons: data['seasons'],
         totalEpisodes: data['totalEpisodes'],
         duration: data['duration'],
+        episodes: (data['episodes'] as List<dynamic>?)
+            ?.map((e) => Episode.fromJson(e as Map<String, dynamic>))
+            .toList() ?? [],
       );
     } catch (e) {
       logger.e('Failed to fetch media by ID: $e');

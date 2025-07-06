@@ -2,6 +2,33 @@ import 'package:equatable/equatable.dart';
 
 enum MediaType { movie, series }
 
+class Episode extends Equatable {
+  final int episodeNumber;
+  final String videoUrl;
+
+  const Episode({
+    required this.episodeNumber,
+    required this.videoUrl,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'episodeNumber': episodeNumber,
+      'videoUrl': videoUrl,
+    };
+  }
+
+  factory Episode.fromJson(Map<String, dynamic> json) {
+    return Episode(
+      episodeNumber: json['episodeNumber'] ?? 1,
+      videoUrl: json['videoUrl'] ?? '',
+    );
+  }
+
+  @override
+  List<Object?> get props => [episodeNumber, videoUrl];
+}
+
 class Media extends Equatable {
   final String id;
   final String title;
@@ -15,6 +42,7 @@ class Media extends Equatable {
   final int? totalEpisodes;
   final int? duration;
   final String? videoUrl;
+  final List<Episode> episodes;
 
   const Media({
     required this.id,
@@ -29,10 +57,27 @@ class Media extends Equatable {
     this.totalEpisodes,
     this.duration,
     this.videoUrl,
+    this.episodes = const [],
   });
 
   bool get isMovie => type == MediaType.movie;
   bool get isSeries => type == MediaType.series;
+  int get episodeCount => episodes.length;
+
+  // Get episode by number
+  Episode? getEpisode(int episodeNumber) {
+    return episodes.where((e) => e.episodeNumber == episodeNumber).firstOrNull;
+  }
+
+  String? getVideoUrl([int? episodeNumber]) {
+    if (isMovie) return videoUrl;
+
+    // If episodeNumber is provided, return the specific episode's video URL
+    if (episodeNumber != null) {
+      return getEpisode(episodeNumber)?.videoUrl;
+    }
+    return episodes.isNotEmpty ? episodes.first.videoUrl : videoUrl;
+  }
 
   // JSON serialization
   Map<String, dynamic> toJson() {
@@ -49,6 +94,7 @@ class Media extends Equatable {
       'totalEpisodes': totalEpisodes,
       'duration': duration,
       'videoUrl': videoUrl,
+      'episodes': episodes.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -69,6 +115,9 @@ class Media extends Equatable {
       totalEpisodes: json['totalEpisodes'],
       duration: json['duration'],
       videoUrl: json['videoUrl'],
+      episodes: (json['episodes'] as List<dynamic>?)
+          ?.map((e) => Episode.fromJson(e as Map<String, dynamic>))
+          .toList() ?? [], //TODO: Confirm mapping
     );
   }
 
@@ -86,5 +135,6 @@ class Media extends Equatable {
         totalEpisodes,
         duration,
         videoUrl,
+        episodes,
       ];
 }
