@@ -50,7 +50,10 @@ class FirebaseService {
   static Future<void> initialize() async {
     try {
       if (_auth.currentUser == null) {
-        await _auth.signInAnonymously(); //FIR Auth to allow anonymous access
+        await _withTimeout(
+          _auth.signInAnonymously(),
+          'Firebase initialization'
+        ); //FIR Auth to allow anonymous access
       }
     } catch (e, s) {
       logger.e('❌ Firebase service initialization failed: $e', s);
@@ -116,22 +119,25 @@ class FirebaseService {
         duration: videoDuration,
       );
 
-      await _firestore.collection('media').doc(videoId).set({
-        'id': videoId,
-        'title': title,
-        'description': description,
-        'imageUrl': media.imageUrl,
-        'videoUrl': videoUrl,
-        'type': type.toString(),
-        'year': media.year,
-        'rating': media.rating,
-        'genres': genres,
-        'totalEpisodes': media.totalEpisodes,
-        'duration': media.duration,
-        'userId': user.uid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _withTimeout(
+        _firestore.collection('media').doc(videoId).set({
+          'id': videoId,
+          'title': title,
+          'description': description,
+          'imageUrl': media.imageUrl,
+          'videoUrl': videoUrl,
+          'type': type.toString(),
+          'year': media.year,
+          'rating': media.rating,
+          'genres': genres,
+          'totalEpisodes': media.totalEpisodes,
+          'duration': media.duration,
+          'userId': user.uid,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }),
+        'Upload video metadata'
+      );
 
       logger.i('✅ Media uploaded successfully: ${media.title} (${media.duration} minutes)');
       return media;
@@ -225,22 +231,25 @@ class FirebaseService {
       );
 
       // Save to Firestore
-      await _firestore.collection('media').doc(seriesId).set({
-        'id': seriesId,
-        'title': title,
-        'description': description,
-        'imageUrl': media.imageUrl,
-        'type': MediaType.series.toString(),
-        'year': media.year,
-        'rating': media.rating,
-        'genres': genres,
-        'totalEpisodes': media.totalEpisodes,
-        'duration': media.duration,
-        'episodes': episodes.map((e) => e.toJson()).toList(),
-        'userId': user.uid,
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+      await _withTimeout(
+        _firestore.collection('media').doc(seriesId).set({
+          'id': seriesId,
+          'title': title,
+          'description': description,
+          'imageUrl': media.imageUrl,
+          'type': MediaType.series.toString(),
+          'year': media.year,
+          'rating': media.rating,
+          'genres': genres,
+          'totalEpisodes': media.totalEpisodes,
+          'duration': media.duration,
+          'episodes': episodes.map((e) => e.toJson()).toList(),
+          'userId': user.uid,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }),
+        'Upload series metadata'
+      );
 
       logger.i('✅ Series uploaded successfully: ${media.title} (${episodes.length} episodes, ${media.duration} minutes total)');
       return media;
@@ -255,10 +264,13 @@ class FirebaseService {
   // PLAY: Get all videos for streaming
   static Future<List<Media>> getAllMedia() async {
     try {
-      final snapshot = await _firestore
-          .collection('media')
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot = await _withTimeout(
+        _firestore
+            .collection('media')
+            .orderBy('createdAt', descending: true)
+            .get(),
+        'Get all media'
+      );
 
       return snapshot.docs.map((doc) {
         final data = doc.data();
@@ -293,11 +305,14 @@ class FirebaseService {
       final user = _auth.currentUser;
       if (user == null) throw Exception('User not authenticated');
 
-      final snapshot = await _firestore
-          .collection('media')
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot = await _withTimeout(
+        _firestore
+            .collection('media')
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('createdAt', descending: true)
+            .get(),
+        'Get user media'
+      );
 
       return snapshot.docs.map((doc) {
         final data = doc.data();
@@ -330,7 +345,10 @@ class FirebaseService {
       
       if (user == null) throw Exception('User not authenticated');
 
-      final doc = await _firestore.collection('media').doc(mediaId).get();
+      final doc = await _withTimeout(
+        _firestore.collection('media').doc(mediaId).get(),
+        'Get media for deletion'
+      );
       
       if (!doc.exists) {
         // TODO: Shouldn't delete an already deleted document
@@ -348,7 +366,10 @@ class FirebaseService {
       }
 
       // First, delete metadata from Firestore to prevent race conditions
-      await _firestore.collection('media').doc(mediaId).delete();
+      await _withTimeout(
+        _firestore.collection('media').doc(mediaId).delete(),
+        'Delete media metadata'
+      );
 
       // Then delete video files from Storage
       try {
@@ -402,7 +423,10 @@ class FirebaseService {
   // VERIFY: Check if media document exists (for debugging)
   static Future<bool> mediaExists(String mediaId) async {
     try {
-      final doc = await _firestore.collection('media').doc(mediaId).get();
+      final doc = await _withTimeout(
+        _firestore.collection('media').doc(mediaId).get(),
+        'Check media existence'
+      );
       return doc.exists;
     } catch (e) {
       logger.e('Error checking media existence: $e');
@@ -432,11 +456,14 @@ class FirebaseService {
   // FILTER: Filter media by type
   static Future<List<Media>> filterMediaByType(MediaType type) async {
     try {
-      final snapshot = await _firestore
-          .collection('media')
-          .where('type', isEqualTo: type.toString())
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot = await _withTimeout(
+        _firestore
+            .collection('media')
+            .where('type', isEqualTo: type.toString())
+            .orderBy('createdAt', descending: true)
+            .get(),
+        'Filter media by type'
+      );
 
       return snapshot.docs.map((doc) {
         final data = doc.data();
@@ -469,10 +496,13 @@ class FirebaseService {
       await CacheService.clearCache();
       
       // Get fresh data from Firebase
-      final snapshot = await _firestore
-          .collection('media')
-          .orderBy('createdAt', descending: true)
-          .get();
+      final snapshot = await _withTimeout(
+        _firestore
+            .collection('media')
+            .orderBy('createdAt', descending: true)
+            .get(),
+        'Refresh all media'
+      );
 
       final mediaList = snapshot.docs.map((doc) {
         final data = doc.data();
@@ -517,7 +547,10 @@ class FirebaseService {
       if (user == null) throw Exception('User not authenticated');
 
       // Get current media to preserve episode data
-      final currentDoc = await _firestore.collection('media').doc(mediaId).get();
+      final currentDoc = await _withTimeout(
+        _firestore.collection('media').doc(mediaId).get(),
+        'Get media for update'
+      );
       if (!currentDoc.exists) {
         throw Exception('Media not found');
       }
@@ -547,7 +580,10 @@ class FirebaseService {
       }
 
       // Update Firestore with the changes
-      await _firestore.collection('media').doc(mediaId).update(updateData);
+      await _withTimeout(
+        _firestore.collection('media').doc(mediaId).update(updateData),
+        'Update media metadata'
+      );
 
       await CacheService.clearCache();
       logger.i('✅ Media updated successfully: $title');
@@ -559,7 +595,10 @@ class FirebaseService {
   /// Fetches a single media item by its ID
   static Future<Media?> getMediaById(String mediaId) async {
     try {
-      final docSnapshot = await _firestore.collection('media').doc(mediaId).get();
+      final docSnapshot = await _withTimeout(
+        _firestore.collection('media').doc(mediaId).get(),
+        'Get media by ID'
+      );
       
       if (!docSnapshot.exists) {
         logger.w('Media with ID $mediaId not found');
@@ -609,6 +648,18 @@ class FirebaseService {
       default:
         return Exception('$operation failed: ${e.message ?? e.code}');
     }
+  }
+
+  /// Global timeout wrapper for Firebase operations
+  /// Applies a 10-second timeout to all Firebase requests
+  static Future<T> _withTimeout<T>(Future<T> future, [String operation = 'Operation']) async {
+    return future.timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        logger.w('$operation timed out after 10 seconds');
+        throw Exception('$operation timed out. Please check your connection and try again.');
+      },
+    );
   }
 
 }
