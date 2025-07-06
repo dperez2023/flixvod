@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_theme.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
@@ -21,7 +22,7 @@ class SectionHeader extends StatelessWidget {
           size: 28,
           color: Theme.of(context).colorScheme.primary,
         ),
-        const SizedBox(width: 12),
+        AppTheme.largeHorizontalSpacer,
         Text(
           title,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -29,10 +30,10 @@ class SectionHeader extends StatelessWidget {
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
-        const SizedBox(width: 8),
+        AppTheme.mediumHorizontalSpacer,
         if (count != null && count! > 0) 
           Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: AppTheme.badgePadding,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),

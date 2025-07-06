@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/app_theme.dart';
 
 class FirebaseErrorScreen extends StatefulWidget {
   final String error;
@@ -34,16 +35,16 @@ class _FirebaseErrorScreenState extends State<FirebaseErrorScreen> {
       home: Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: AppTheme.largePadding,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.cloud_off,
-                  size: 80,
-                  color: Colors.grey[400],
+                  size: AppTheme.heroIconSize,
+                  color: AppTheme.lightForegroundColor,
                 ),
-                const SizedBox(height: 24),
+                AppTheme.largeVerticalSpacer,
                 Text(
                   'Connection Error',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -51,56 +52,51 @@ class _FirebaseErrorScreenState extends State<FirebaseErrorScreen> {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
                 Text(
                   'Unable to connect to Firebase services. Please check your internet connection and try again.',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.grey[600],
+                    color: AppTheme.mutedForegroundColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 if (widget.error.isNotEmpty) ...[
-                  const SizedBox(height: 16),
+                  AppTheme.mediumVerticalSpacer,
                   Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red[200]!),
-                    ),
+                    padding: AppTheme.containerPadding,
+                    decoration: AppTheme.createErrorContainerDecoration(),
                     child: Text(
                       'Error: ${widget.error}',
-                      style: TextStyle(
-                        color: Colors.red[700],
-                        fontSize: 12,
+                      style: AppTheme.errorDisplayStyle.copyWith(
+                        color: AppTheme.errorTextColor,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ],
-                const SizedBox(height: 32),
+                AppTheme.extraLargeVerticalSpacer,
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _isRetrying ? null : _retryInitialization,
                     icon: _isRetrying
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
+                        ? SizedBox(
+                            width: AppTheme.loadingIndicatorSize,
+                            height: AppTheme.loadingIndicatorSize,
+                            child: const CircularProgressIndicator(strokeWidth: 2),
                           )
                         : const Icon(Icons.refresh),
                     label: Text(_isRetrying ? 'Retrying...' : 'Retry Connection'),
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: AppTheme.buttonPadding,
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
                 Text(
                   'Make sure you have an active internet connection',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.grey[500],
+                    color: AppTheme.lightForegroundColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
