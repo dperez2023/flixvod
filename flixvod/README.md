@@ -4,20 +4,20 @@ Video on Demand (VOD) App built using Flutter and Firebase for iOS and Android, 
 
 - **Introductory Video**: URL
 
-## 🎬 Features
+## Features
 
 ### Core VOD Functionality
-- **📹 Video Upload**: Upload videos directly from mobile/desktop
-- **🎥 Video Streaming**: High-quality video playback with full-screen support
-- **🗑️ Video Management**: Delete videos with confirmation dialogs
-- **🔍 Search & Filter**: Search by title/description, filter by type (Movie/Series)
-- **📱 Cross-Platform**: Runs on iOS and Android
+- **Video Upload**: Upload videos directly from mobile/desktop
+- **Video Streaming**: High-quality video playback with full-screen support
+- **Video Management**: Delete videos with confirmation dialogs
+- **Search & Filter**: Search by title/description, filter by type (Movie/Series)
+- **Cross-Platform**: Runs on iOS and Android
 
 ### Technical Features
-- **🔥 Firebase Backend**: Cloud storage and database (thresholds set for free tier)
-- **🏗️ BLOC Architecture**: Clean state management with flutter_bloc
-- **🎨 Modern UI**: Material Design 3 with responsive layouts
-- **⚡ Performance**: Optimized video streaming and caching
+- **Firebase Backend**: Cloud storage and database (thresholds set for free tier)
+- **BLOC Architecture**: Clean state management with flutter_bloc
+- **Modern UI**: Material Design 3 with responsive layouts
+- **Performance**: Optimized video streaming and caching
 
 ## 🚀 Quick Start
 
@@ -30,7 +30,7 @@ Video on Demand (VOD) App built using Flutter and Firebase for iOS and Android, 
 - **Xcode** (for iOS development) - Avoid Xcode 26 and iOS 26 debug
   - iOS 11.0+
 
-## 📋 Usage Guide
+## Usage Guide
 
 ### Uploading Movies and Series
 1. Tap the **+** button in the top-right corner
