@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/app_theme.dart';
 
 class FilterChipsWidget<T> extends StatelessWidget {
   final List<T> availableOptions;
@@ -24,7 +25,7 @@ class FilterChipsWidget<T> extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      padding: AppTheme.standardPadding.copyWith(top: 4.0, bottom: 4.0),
       child: SizedBox(
         height: 40,
         child: SingleChildScrollView(
@@ -42,7 +43,7 @@ class FilterChipsWidget<T> extends StatelessWidget {
                 },
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              const SizedBox(width: 8),
+              AppTheme.mediumHorizontalSpacer,
               ...availableOptions.map((option) => [
                 ChoiceChip(
                   label: Text(getOptionLabel(context, option)),
@@ -54,7 +55,7 @@ class FilterChipsWidget<T> extends StatelessWidget {
                   },
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                const SizedBox(width: 8),
+                AppTheme.mediumHorizontalSpacer,
               ]).expand((widget) => widget),
             ],
           ),

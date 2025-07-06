@@ -7,6 +7,7 @@ import '../bloc/catalogue_state.dart';
 import '../bloc/catalogue_event.dart';
 import 'search_bar_widget.dart';
 import 'filter_chips_widget.dart';
+import '../../../core/app_theme.dart';
 
 class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidget {
   final TextEditingController searchController;
@@ -42,7 +43,7 @@ class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidg
               controller: searchController,
               onChanged: onSearchChanged,
             ),
-            const SizedBox(height: 8),
+            AppTheme.smallVerticalSpacer,
             // Filter Chips for Media Types
             BlocBuilder<CatalogueBloc, CatalogueState>(
               builder: (context, state) {
@@ -70,7 +71,7 @@ class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidg
                 );
               },
             ),
-            const SizedBox(height: 4),
+            AppTheme.tinyVerticalSpacer,
             // Filter Chips for Genres
             BlocBuilder<CatalogueBloc, CatalogueState>(
               builder: (context, state) {
@@ -92,7 +93,7 @@ class CatalogueAppBarWidget extends StatelessWidget implements PreferredSizeWidg
                 );
               },
             ),
-            const SizedBox(height: 12),
+            AppTheme.specialVerticalSpacer,
           ],
         ),
       ),

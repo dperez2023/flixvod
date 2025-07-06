@@ -7,6 +7,7 @@ import '../../../services/storage/firebase_service.dart';
 import '../../../localization/localized.dart';
 import '../../common/notification_message_widget.dart';
 import '../bloc/catalogue_bloc.dart';
+import '../../../core/app_theme.dart';
 
 class MediaCard extends StatelessWidget {
   final Media media;
@@ -35,7 +36,7 @@ class MediaCard extends StatelessWidget {
                 Navigator.of(context).pop();
                 await _deleteMedia(context);
               },
-              child: Text(Localized.of(context).delete, style: const TextStyle(color: Colors.red)),
+              child: Text(Localized.of(context).delete, style: AppTheme.errorTextStyle),
             ),
           ],
         );
@@ -72,7 +73,7 @@ class MediaCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppTheme.largeBorderRadius),
       ),
       child: InkWell(
         onTap: () {
@@ -95,8 +96,7 @@ class MediaCard extends StatelessWidget {
               Container(
                 width: 100,
                 height: 150,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                decoration: AppTheme.createCardDecoration().copyWith(
                   image: DecorationImage(
                     image: NetworkImage(media.imageUrl),
                     fit: BoxFit.cover,
@@ -112,21 +112,13 @@ class MediaCard extends StatelessWidget {
                       top: 8,
                       left: 8,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: media.isMovie ? Colors.blue : Colors.orange,
-                          borderRadius: BorderRadius.circular(6),
+                        padding: AppTheme.badgePadding,
+                        decoration: AppTheme.createBadgeDecoration(
+                          AppTheme.getMediaTypeColor(media.isMovie),
                         ),
                         child: Text(
                           media.isMovie ? Localized.of(context).movie : Localized.of(context).series,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTheme.badgeTextStyle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -143,16 +135,13 @@ class MediaCard extends StatelessWidget {
                             );
                           },
                           child: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
-                              shape: BoxShape.circle,
-                            ),
+                            width: AppTheme.playButtonSize,
+                            height: AppTheme.playButtonSize,
+                            decoration: AppTheme.createPlayButtonDecoration(),
                             child: Icon(
                               Icons.play_arrow,
-                              color: Colors.white,
-                              size: 28,
+                              color: AppTheme.whiteForegroundColor,
+                              size: AppTheme.largeIconSize,
                             ),
                           ),
                         ),
@@ -163,7 +152,7 @@ class MediaCard extends StatelessWidget {
               // Media Info
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: AppTheme.standardPadding,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -180,39 +169,29 @@ class MediaCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          const SizedBox(width: 8),
+                          AppTheme.mediumHorizontalSpacer,
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
+                            padding: AppTheme.badgePadding,
+                            decoration: AppTheme.createBadgeDecoration(AppTheme.ratingBadgeColor),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.star,
-                                  color: Colors.amber,
-                                  size: 12,
+                                  color: AppTheme.starColor,
+                                  size: AppTheme.smallIconSize,
                                 ),
-                                const SizedBox(width: 2),
+                                AppTheme.tinyHorizontalSpacer,
                                 Text(
                                   media.rating.toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: AppTheme.ratingBadgeTextStyle,
                                 ),
                               ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      AppTheme.smallVerticalSpacer,
                       // Year and Duration/Episodes
                       Text(
                         media.isMovie
@@ -221,12 +200,12 @@ class MediaCard extends StatelessWidget {
                                 ? '${media.year} • ${media.episodeCount} episodes'
                                 : '${media.year} • ${media.seasons} seasons',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                          color: AppTheme.mutedForegroundColor,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 8),
+                      AppTheme.smallVerticalSpacer,
                       // Description
                       Expanded(
                         child: Text(
@@ -236,7 +215,7 @@ class MediaCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      AppTheme.smallVerticalSpacer,
                       // Genres
                       Text(
                         media.genres.take(3).join(' • '),

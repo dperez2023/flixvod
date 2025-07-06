@@ -3,6 +3,7 @@ import '../../../models/media.dart';
 import 'media_card.dart';
 import '../../common/section_header.dart';
 import '../../../localization/localized.dart';
+import '../../../core/app_theme.dart';
 
 class MediaListWidget extends StatelessWidget {
   final List<Media> movies;
@@ -21,7 +22,7 @@ class MediaListWidget extends StatelessWidget {
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: AppTheme.standardPadding,
         children: [
           // Movies Section
           if (movies.isNotEmpty) ...[
@@ -30,9 +31,9 @@ class MediaListWidget extends StatelessWidget {
               count: movies.length,
               icon: Icons.movie,
             ),
-            const SizedBox(height: 16),
+            AppTheme.mediumVerticalSpacer,
             _buildMediaSection(movies),
-            const SizedBox(height: 32),
+            AppTheme.extraLargeVerticalSpacer,
           ],
           
           // Series Section
@@ -42,7 +43,7 @@ class MediaListWidget extends StatelessWidget {
               count: series.length,
               icon: Icons.tv,
             ),
-            const SizedBox(height: 16),
+            AppTheme.mediumVerticalSpacer,
             _buildMediaSection(series),
           ],
         ],
@@ -57,7 +58,7 @@ class MediaListWidget extends StatelessWidget {
       itemCount: mediaList.length,
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.only(bottom: AppTheme.mediumVerticalSpacerHeight),
           child: MediaCard(
             media: mediaList[index],
             onDeleted: () async {
