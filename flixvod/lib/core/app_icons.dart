@@ -98,7 +98,6 @@ class AppIcons {
   /// Delete icon
   static const Icon delete = Icon(
     Icons.delete,
-    color: AppTheme.errorColor,
     size: AppTheme.mediumIconSize,
   );
 

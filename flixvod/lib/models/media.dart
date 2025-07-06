@@ -64,6 +64,9 @@ class Media extends Equatable {
   bool get isSeries => type == MediaType.series;
   int get episodeCount => episodes.length;
 
+  /// Returns true if the media has a valid image URL
+  bool get hasValidImageUrl => imageUrl.isNotEmpty && Uri.tryParse(imageUrl) != null;
+
   // Get episode by number
   Episode? getEpisode(int episodeNumber) {
     return episodes.where((e) => e.episodeNumber == episodeNumber).firstOrNull;

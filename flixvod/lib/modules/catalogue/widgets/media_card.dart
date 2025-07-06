@@ -98,16 +98,28 @@ class MediaCard extends StatelessWidget {
                 width: 100,
                 height: 150,
                 decoration: AppTheme.createCardDecoration().copyWith(
-                  image: DecorationImage(
-                    image: NetworkImage(media.imageUrl),
-                    fit: BoxFit.cover,
-                    onError: (error, stackTrace) {
-                      // Handle image loading error
-                    },
-                  ),
+                  image: media.hasValidImageUrl 
+                    ? DecorationImage(
+                        image: NetworkImage(media.imageUrl),
+                        fit: BoxFit.cover,
+                        onError: (error, stackTrace) {
+                          debugPrint('Error loading image: $error');
+                        },
+                      )
+                    : null,
                 ),
                 child: Stack(
                   children: [
+                    // Placeholder when no image
+                    if (!media.hasValidImageUrl)
+                      Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: AppTheme.cardBackgroundColor,
+                        child: const Center(
+                          child: AppIcons.videoLibraryMedium,
+                        ),
+                      ),
                     // Type Badge
                     Positioned(
                       top: 8,

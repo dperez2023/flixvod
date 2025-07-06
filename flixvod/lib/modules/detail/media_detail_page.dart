@@ -45,34 +45,62 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(currentMedia.imageUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: Container(
-                  decoration: AppTheme.createGradientOverlayDecoration(),
-                  child: currentMedia.isMovie ? Center(
-                    child: Container(
-                      width: AppTheme.largePlayButtonSize,
-                      height: AppTheme.largePlayButtonSize,
-                      decoration: AppTheme.createPlayButtonDecoration(),
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => VideoPlayerScreen(media: currentMedia),
-                            ),
-                          );
+                  image: currentMedia.hasValidImageUrl 
+                    ? DecorationImage(
+                        image: NetworkImage(currentMedia.imageUrl),
+                        fit: BoxFit.cover,
+                        onError: (exception, stackTrace) {
+                          // Handle image loading errors
+                          debugPrint('Error loading image: $exception');
                         },
-                        icon: Icon(
-                          Icons.play_arrow,
-                          color: AppTheme.whiteForegroundColor,
-                          size: AppTheme.extraLargeIconSize,
+                      )
+                    : null,
+                  color: currentMedia.hasValidImageUrl ? null : AppTheme.cardBackgroundColor,
+                ),
+                child: Stack(
+                  children: [
+                    // Show placeholder when no image URL
+                    if (!currentMedia.hasValidImageUrl)
+                      Container(
+                        decoration: AppTheme.createGradientOverlayDecoration(),
+                        child: const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AppIcons.videoLibraryMedium,
+                              AppTheme.smallVerticalSpacer,
+                              Text(
+                                'No Image Available',
+                                style: AppTheme.whiteTextStyle,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
+                    // Gradient overlay
+                    Container(
+                      decoration: AppTheme.createGradientOverlayDecoration(),
                     ),
-                  ) : null,
+
+                    if (currentMedia.isMovie) 
+                      Center(
+                        child: Container(
+                          width: AppTheme.largePlayButtonSize,
+                          height: AppTheme.largePlayButtonSize,
+                          decoration: AppTheme.createPlayButtonDecoration(),
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => VideoPlayerScreen(media: currentMedia),
+                                ),
+                              );
+                            },
+                            icon: AppIcons.playCard,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -415,13 +443,23 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       height: 150,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        image: DecorationImage(
-                          image: NetworkImage(currentMedia.imageUrl),
-                          fit: BoxFit.cover,
-                        ),
+                        image: currentMedia.hasValidImageUrl 
+                          ? DecorationImage(
+                              image: NetworkImage(currentMedia.imageUrl),
+                              fit: BoxFit.cover,
+                              onError: (exception, stackTrace) {
+                                debugPrint('Error loading episode image: $exception');
+                              },
+                            )
+                          : null,
+                        color: currentMedia.hasValidImageUrl ? null : AppTheme.cardBackgroundColor,
                       ),
                       child: Stack(
                         children: [
+                          if (!currentMedia.hasValidImageUrl)
+                            const Center(
+                              child: AppIcons.videoLibraryMedium,
+                            ),
                           // Dark overlay
                           Container(
                             decoration: BoxDecoration(
@@ -465,20 +503,6 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       ),
                     ),
                     AppTheme.mediumVerticalSpacer,
-                    // Play button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _playEpisode(episode.episodeNumber),
-                        icon: AppIcons.play,
-                        label: Text('Play Episode ${episode.episodeNumber}'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: AppTheme.whiteForegroundColor,
-                          padding: AppTheme.buttonPadding,
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
