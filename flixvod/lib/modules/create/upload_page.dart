@@ -203,10 +203,12 @@ class _UploadPageState extends State<UploadPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
+              style: AppTheme.primaryTextButtonStyle,
               child: Text(Localized.of(context).uploadOriginal),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
+              style: AppTheme.primaryElevatedButtonStyle,
               child: Text(Localized.of(context).compressAndUpload),
             ),
           ],
@@ -344,26 +346,27 @@ class _UploadPageState extends State<UploadPage> {
       child: Center(
         child: Card(
           margin: AppTheme.extraLargePadding,
+          color: AppTheme.cardBackgroundColor,
           child: Padding(
             padding: AppTheme.largePadding,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(),
+                const CircularProgressIndicator(
+                  color: AppTheme.primaryForegroundColor,
+                ),
                 AppTheme.mediumVerticalSpacer,
                 Text(
                   editMode 
                     ? 'Updating Media...'
                     : 'Uploading Media...',
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: AppTheme.primaryTextStyle.copyWith(fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 AppTheme.smallVerticalSpacer,
                 Text(
                   "Please don't close the app while uploading",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.mutedForegroundColor,
-                  ),
+                  style: AppTheme.mutedTextStyle,
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -407,9 +410,24 @@ class _UploadPageState extends State<UploadPage> {
 
               TextFormField(
                 controller: _titleController,
+                style: AppTheme.primaryTextStyle,
                 decoration: InputDecoration(
                   labelText: Localized.of(context).titleLabel,
-                  border: OutlineInputBorder(),
+                  labelStyle: AppTheme.mutedTextStyle,
+                  filled: true,
+                  fillColor: AppTheme.cardBackgroundColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.mediumBorderRadius),
+                    borderSide: BorderSide(color: AppTheme.primaryBorderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.mediumBorderRadius),
+                    borderSide: BorderSide(color: AppTheme.primaryBorderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.mediumBorderRadius),
+                    borderSide: const BorderSide(color: AppTheme.primaryForegroundColor),
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -423,9 +441,24 @@ class _UploadPageState extends State<UploadPage> {
               // Description TextField (Form)
               TextFormField(
                 controller: _descriptionController,
+                style: AppTheme.primaryTextStyle,
                 decoration: InputDecoration(
                   labelText: Localized.of(context).descriptionLabel,
-                  border: OutlineInputBorder(),
+                  labelStyle: AppTheme.mutedTextStyle,
+                  filled: true,
+                  fillColor: AppTheme.cardBackgroundColor,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.mediumBorderRadius),
+                    borderSide: BorderSide(color: AppTheme.primaryBorderColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.mediumBorderRadius),
+                    borderSide: BorderSide(color: AppTheme.primaryBorderColor),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.mediumBorderRadius),
+                    borderSide: const BorderSide(color: AppTheme.primaryForegroundColor),
+                  ),
                 ),
                 maxLines: 3,
                 validator: (value) {
@@ -567,9 +600,7 @@ class _UploadPageState extends State<UploadPage> {
                       onPressed: () => _removeEpisode(index),
                       icon: const Icon(Icons.remove),
                       label: Text(Localized.of(context).removeEpisode),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppTheme.errorColor,
-                      ),
+                      style: AppTheme.errorTextButtonStyle,
                     ),
                   ],
                 ],
@@ -583,6 +614,7 @@ class _UploadPageState extends State<UploadPage> {
           label: Text(_episodeVideos.length < 4 
               ? Localized.of(context).addEpisode 
               : 'Maximum 4 episodes'),
+          style: AppTheme.secondaryElevatedButtonStyle,
         ),
         AppTheme.mediumVerticalSpacer,
       ],
