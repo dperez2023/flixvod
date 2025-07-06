@@ -217,7 +217,9 @@ class MediaCard extends StatelessWidget {
                       Text(
                         media.isMovie
                             ? '${media.year} • ${media.duration}min'
-                            : '${media.year} • ${media.seasons} seasons',
+                            : media.episodeCount > 0
+                                ? '${media.year} • ${media.episodeCount} episodes'
+                                : '${media.year} • ${media.seasons} seasons',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),

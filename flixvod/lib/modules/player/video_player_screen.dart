@@ -98,7 +98,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     try {
       final primaryColor = Theme.of(context).primaryColor;
       
-      String? videoUrl = widget.media.videoUrl;
+      String? videoUrl = widget.media.getVideoUrl();
       
       if (videoUrl == null || videoUrl.isEmpty) {
         logger.e('No video URL provided for media: ${widget.media.title}');
