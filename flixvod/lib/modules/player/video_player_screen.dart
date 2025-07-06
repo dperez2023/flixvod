@@ -20,7 +20,7 @@ class VideoPlayerScreen extends StatefulWidget {
 }  
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late VideoPlayerController _videoPlayerController;
+  VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _isLoading = true;
   String? _errorMessage;
@@ -31,8 +31,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeVideoPlayer();
-
+    
     // Set landscape mode and "immersive" UI
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
@@ -44,18 +43,21 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Initialize video player here where Theme.of(context) is available
+    if (_videoPlayerController == null && _errorMessage == null) {
+      _initializeVideoPlayer();
+    }
+  }
+
+  @override
   void dispose() {
     _hideTimer?.cancel();
     _chewieController?.dispose();
-    _videoPlayerController.dispose();
-    // Restore normal orientation and UI
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    _videoPlayerController?.dispose();
+    // Ensure orientation is restored (fallback safety)
+    _resetOrientation();
     super.dispose();
   }
 
@@ -68,6 +70,21 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         });
       }
     });
+  }
+
+  void _resetOrientation() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  void _goBack() {
+    _resetOrientation();
+    Navigator.of(context).pop();
   }
 
   void _showTopBarAndResetTimer() {
@@ -107,13 +124,13 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         },
       );
       
-      await _videoPlayerController.initialize();
+      await _videoPlayerController!.initialize();
       
       _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
+        videoPlayerController: _videoPlayerController!,
         autoPlay: true,
         looping: false,
-        aspectRatio: _videoPlayerController.value.aspectRatio,
+        aspectRatio: _videoPlayerController!.value.aspectRatio,
         allowFullScreen: true,
         allowMuting: true,
         showControls: true,
@@ -155,7 +172,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: _goBack,
                   child: Text(Localized.of(context).goBack),
                 ),
               ],
@@ -219,7 +236,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: _goBack,
                         child: Text(Localized.of(context).goBack),
                       ),
                     ],
@@ -244,14 +261,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                           ),
                         ),
                       ),
-                      // "Custom" back button - conditionally visible
+
                       if (_showTopBar)
                         Positioned(
                           top: 40,
                           left: 16,
                           child: SafeArea(
                             child: GestureDetector(
-                              onTap: () => Navigator.of(context).pop(),
+                              onTap: _goBack,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
@@ -263,35 +280,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                   color: Colors.white,
                                   size: 24,
                                 ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      // Media title overlay - conditionally visible
-                      if (_showTopBar)
-                        Positioned(
-                          top: 40,
-                          right: 16,
-                          left: 80,
-                          child: SafeArea(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                widget.media.title,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
