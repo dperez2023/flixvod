@@ -165,8 +165,8 @@ class AppTheme {
   
   /// Badge padding
   static const EdgeInsets badgePadding = EdgeInsets.symmetric(
-    horizontal: 6,
-    vertical: 2,
+    horizontal: 8,
+    vertical: 4,
   );
   
   static const EdgeInsets largeBadgePadding = EdgeInsets.symmetric(
@@ -179,6 +179,10 @@ class AppTheme {
 
   /// Button padding
   static const EdgeInsets buttonPadding = EdgeInsets.symmetric(vertical: 16);
+
+  /// Form field padding
+  static const EdgeInsets formFieldPadding = EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0);
+  static const EdgeInsets searchBarPadding = EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0);
 
   /// Border radius
   static const double smallBorderRadius = 6.0;
