@@ -23,12 +23,13 @@ class ErrorStateWidget extends StatelessWidget {
           AppTheme.mediumVerticalSpacer,
           Text(
             errorMessage ?? Localized.of(context).anErrorOccurred,
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: AppTheme.emptyStateTitleStyle,
             textAlign: TextAlign.center,
           ),
           AppTheme.mediumVerticalSpacer,
           ElevatedButton(
             onPressed: onRetry,
+            style: AppTheme.primaryElevatedButtonStyle,
             child: Text(Localized.of(context).retry),
           ),
         ],

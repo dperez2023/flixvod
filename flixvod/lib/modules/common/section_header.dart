@@ -19,31 +19,25 @@ class SectionHeader extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 28,
-          color: Theme.of(context).colorScheme.primary,
+          size: AppTheme.largeIconSize,
+          color: AppTheme.primaryForegroundColor,
         ),
         AppTheme.largeHorizontalSpacer,
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          style: AppTheme.primaryTextStyle.copyWith(
+            fontSize: 20,
             fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         AppTheme.mediumHorizontalSpacer,
         if (count != null && count! > 0) 
           Container(
           padding: AppTheme.badgePadding,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
+          decoration: AppTheme.createBadgeDecoration(AppTheme.overlayBackgroundColor),
           child: Text(
             count.toString(),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTheme.badgeTextStyle,
           ),
         ),
         const Spacer(),

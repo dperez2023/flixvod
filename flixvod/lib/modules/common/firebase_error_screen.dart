@@ -87,9 +87,7 @@ class _FirebaseErrorScreenState extends State<FirebaseErrorScreen> {
                           )
                         : const Icon(Icons.refresh),
                     label: Text(_isRetrying ? 'Retrying...' : 'Retry Connection'),
-                    style: ElevatedButton.styleFrom(
-                      padding: AppTheme.buttonPadding,
-                    ),
+                    style: AppTheme.basicElevatedButtonStyle,
                   ),
                 ),
                 AppTheme.mediumVerticalSpacer,

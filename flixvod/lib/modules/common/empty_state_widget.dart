@@ -45,6 +45,7 @@ class EmptyStateWidget extends StatelessWidget {
               onPressed: onRefresh,
               icon: AppIcons.refresh,
               label: Text(refreshButtonText ?? Localized.of(context).refresh),
+              style: AppTheme.primaryElevatedButtonStyle,
             ),
           ],
         ],
