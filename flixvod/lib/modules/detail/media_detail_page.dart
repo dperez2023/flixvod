@@ -10,6 +10,7 @@ import '../catalogue/bloc/catalogue_bloc.dart';
 import '../catalogue/bloc/catalogue_event.dart';
 import '../create/upload_page.dart';
 import '../../core/app_theme.dart';
+import '../../core/app_icons.dart';
 
 class MediaDetailPage extends StatefulWidget {
   final Media media;
@@ -123,7 +124,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.star, color: AppTheme.starColor, size: AppTheme.mediumIconSize),
+                          AppIcons.starFilled,
                           AppTheme.smallHorizontalSpacer,
                           Text(
                             currentMedia.rating.toString(),
@@ -205,7 +206,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () => _navigateToEditPage(context),
-                          icon: const Icon(Icons.edit),
+                          icon: AppIcons.edit,
                           label: Text(Localized.of(context).editMedia),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -219,7 +220,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       Expanded(
                         child: ElevatedButton.icon(
                           onPressed: () => _showDeleteConfirmation(context),
-                          icon: const Icon(Icons.delete),
+                          icon: AppIcons.delete,
                           label: Text(Localized.of(context).deleteMedia),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppTheme.errorColor,
@@ -469,7 +470,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () => _playEpisode(episode.episodeNumber),
-                        icon: const Icon(Icons.play_arrow),
+                        icon: AppIcons.play,
                         label: Text('Play Episode ${episode.episodeNumber}'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).colorScheme.primary,
