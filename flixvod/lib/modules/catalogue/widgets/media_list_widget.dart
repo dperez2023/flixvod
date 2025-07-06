@@ -7,7 +7,7 @@ import '../../../localization/localized.dart';
 class MediaListWidget extends StatelessWidget {
   final List<Media> movies;
   final List<Media> series;
-  final VoidCallback onRefresh;
+  final Future<void> Function() onRefresh;
 
   const MediaListWidget({
     super.key,
@@ -18,32 +18,35 @@ class MediaListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        // Movies Section
-        if (movies.isNotEmpty) ...[
-          SectionHeader(
-            title: Localized.of(context).movies,
-            count: movies.length,
-            icon: Icons.movie,
-          ),
-          const SizedBox(height: 16),
-          _buildMediaSection(movies),
-          const SizedBox(height: 32),
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Movies Section
+          if (movies.isNotEmpty) ...[
+            SectionHeader(
+              title: Localized.of(context).movies,
+              count: movies.length,
+              icon: Icons.movie,
+            ),
+            const SizedBox(height: 16),
+            _buildMediaSection(movies),
+            const SizedBox(height: 32),
+          ],
+          
+          // Series Section
+          if (series.isNotEmpty) ...[
+            SectionHeader(
+              title: Localized.of(context).series,
+              count: series.length,
+              icon: Icons.tv,
+            ),
+            const SizedBox(height: 16),
+            _buildMediaSection(series),
+          ],
         ],
-        
-        // Series Section
-        if (series.isNotEmpty) ...[
-          SectionHeader(
-            title: Localized.of(context).series,
-            count: series.length,
-            icon: Icons.tv,
-          ),
-          const SizedBox(height: 16),
-          _buildMediaSection(series),
-        ],
-      ],
+      ),
     );
   }
 
@@ -57,7 +60,9 @@ class MediaListWidget extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 16),
           child: MediaCard(
             media: mediaList[index],
-            onDeleted: onRefresh,
+            onDeleted: () async {
+              await onRefresh();
+            },
           ),
         );
       },
