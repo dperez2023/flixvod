@@ -45,6 +45,11 @@
     "description": "Label for series section"
   },
   
+  "episodes": "Episodes",
+  "@episodes": {
+    "description": "Label for episodes section in series detail"
+  },
+  
   "movie": "Movie",
   "@movie": {
     "description": "Label for a single movie"
@@ -419,5 +424,41 @@
   "ratingOutOfRange": "Rating must be between 1.0 and 5.0",
   "@ratingOutOfRange": {
     "description": "Validation message when rating is out of valid range"
+  },
+  
+  "episodeManagement": "Episode Management",
+  "@episodeManagement": {
+    "description": "Label for episode management section in upload"
+  },
+  
+  "episodeTitleLabel": "Episode {episodeNumber} Title (Optional)",
+  "@episodeTitleLabel": {
+    "description": "Label for episode title field",
+    "placeholders": {
+      "episodeNumber": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  
+  "selectEpisodeVideo": "Select Episode Video",
+  "@selectEpisodeVideo": {
+    "description": "Title for episode video selection"
+  },
+  
+  "addEpisode": "Add Episode",
+  "@addEpisode": {
+    "description": "Button text to add new episode"
+  },
+  
+  "removeEpisode": "Remove Episode",
+  "@removeEpisode": {
+    "description": "Button text to remove episode"
+  },
+  
+  "pleaseSelectFirstEpisode": "Please select the first episode (required)",
+  "@pleaseSelectFirstEpisode": {
+    "description": "Error message when first episode is not selected"
   }
 }

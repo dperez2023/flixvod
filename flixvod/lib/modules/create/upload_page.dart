@@ -29,6 +29,9 @@ class _UploadPageState extends State<UploadPage> {
   double _selectedRating = 3.0;
   bool _isUploading = false;
 
+  final List<File?> _episodeVideos = [null];
+  final List<String> _episodeTitles = [''];
+
   final List<String> _availableGenres = [
     'Action', 'Adventure', 'Comedy', 'Drama', 'Horror', 'Romance', 
     'Sci-Fi', 'Thriller', 'Documentary', 'Animation', 'Fantasy', 'Mystery'
@@ -50,6 +53,17 @@ class _UploadPageState extends State<UploadPage> {
     _selectedType = media.isMovie ? MediaType.movie : MediaType.series;
     _selectedGenres.clear();
     _selectedGenres.addAll(media.genres);
+    
+    // For series in edit mode, populate existing episodes (but don't show video files since we can't edit them)
+    if (media.isSeries && media.episodes.isNotEmpty) {
+      _episodeVideos.clear();
+      _episodeTitles.clear();
+      
+      for (int i = 0; i < media.episodes.length && i < 4; i++) {
+        _episodeVideos.add(null); // Don't populate actual files in edit mode
+        _episodeTitles.add('Episode ${i + 1}'); // Placeholder title
+      }
+    }
   }
 
   bool get editMode => widget.mediaToEdit != null;
@@ -59,6 +73,24 @@ class _UploadPageState extends State<UploadPage> {
     _titleController.dispose();
     _descriptionController.dispose();
     super.dispose();
+  }
+
+  void _addEpisode() {
+    if (_episodeVideos.length < 4) { // Limit to 4 episodes
+      setState(() {
+        _episodeVideos.add(null);
+        _episodeTitles.add('');
+      });
+    }
+  }
+
+  void _removeEpisode(int index) {
+    if (_episodeVideos.length > 1 && index > 0) { // Keep at least one episode, can't remove first
+      setState(() {
+        _episodeVideos.removeAt(index);
+        _episodeTitles.removeAt(index);
+      });
+    }
   }
 
   Future<void> _pickVideo() async {
@@ -101,10 +133,22 @@ class _UploadPageState extends State<UploadPage> {
       return;
     }
 
-    // For editing, video is optional; for new upload, it's required
-    if (!editMode && _selectedVideo == null) {
-      _showError(Localized.of(context).pleaseSelectVideo);
-      return;
+    // Validation logic based on media type
+    if (_selectedType == MediaType.movie) {
+      // For movies, check video selection
+      if (!editMode && _selectedVideo == null) {
+        _showError(Localized.of(context).pleaseSelectVideo);
+        return;
+      }
+    } else {
+      // For series, check episode validation
+      if (!editMode) {
+        // First episode is mandatory
+        if (_episodeVideos.isEmpty || _episodeVideos[0] == null) {
+          _showError(Localized.of(context).pleaseSelectFirstEpisode);
+          return;
+        }
+      }
     }
 
     final l10n = Localized.of(context);
@@ -185,29 +229,78 @@ class _UploadPageState extends State<UploadPage> {
   }
 
   Future<void> _createNewMedia() async {
-    File videoToUpload = _selectedVideo!;
-    
-    // Check if video needs compression
-    final videoInfo = await VideoCompressionService.getVideoInfo(_selectedVideo!);
-    
-    if (VideoCompressionService.shouldCompress(videoInfo)) {
-      // Show compression dialog
-      final shouldCompress = await _showCompressionDialog(videoInfo);
+    if (_selectedType == MediaType.movie) {
+      // Handle movie upload (existing logic)
+      File videoToUpload = _selectedVideo!;
       
-      if (shouldCompress) {
-        // Compress the video
-        videoToUpload = await VideoCompressionService.compressVideo(
-          inputFile: _selectedVideo!,
-          quality: VideoQuality.medium,
-        );
+      // Check if video needs compression
+      final videoInfo = await VideoCompressionService.getVideoInfo(_selectedVideo!);
+      
+      if (VideoCompressionService.shouldCompress(videoInfo)) {
+        // Show compression dialog
+        final shouldCompress = await _showCompressionDialog(videoInfo);
+        
+        if (shouldCompress) {
+          // Compress the video
+          videoToUpload = await VideoCompressionService.compressVideo(
+            inputFile: _selectedVideo!,
+            quality: VideoQuality.medium,
+          );
+        }
+      }
+
+      await FirebaseService.uploadVideo(
+        videoFile: videoToUpload,
+        title: _titleController.text,
+        description: _descriptionController.text,
+        type: _selectedType,
+        genres: _selectedGenres,
+        rating: _selectedRating,
+        thumbnailFile: _selectedThumbnail,
+      );
+    } else {
+      // Handle series upload with episodes
+      await _uploadSeries();
+    }
+  }
+
+  Future<void> _uploadSeries() async {
+    // Get valid episodes (non-null videos)
+    List<File> validEpisodeVideos = [];
+    for (int i = 0; i < _episodeVideos.length; i++) {
+      if (_episodeVideos[i] != null) {
+        validEpisodeVideos.add(_episodeVideos[i]!);
       }
     }
 
-    await FirebaseService.uploadVideo(
-      videoFile: videoToUpload,
+    // First episode is mandatory, so we should have at least one
+    if (validEpisodeVideos.isEmpty) {
+      throw Exception('At least one episode is required for series');
+    }
+
+    // Compress episodes if needed
+    List<File> episodesToUpload = [];
+    for (int i = 0; i < validEpisodeVideos.length; i++) {
+      File episodeToUpload = validEpisodeVideos[i];
+      
+      final videoInfo = await VideoCompressionService.getVideoInfo(validEpisodeVideos[i]);
+      
+      if (VideoCompressionService.shouldCompress(videoInfo)) {
+        // For series, auto-compress without asking for each episode
+        episodeToUpload = await VideoCompressionService.compressVideo(
+          inputFile: validEpisodeVideos[i],
+          quality: VideoQuality.medium,
+        );
+      }
+      
+      episodesToUpload.add(episodeToUpload);
+    }
+
+    // Upload series with episodes
+    await FirebaseService.uploadSeries(
+      episodeFiles: episodesToUpload,
       title: _titleController.text,
       description: _descriptionController.text,
-      type: _selectedType,
       genres: _selectedGenres,
       rating: _selectedRating,
       thumbnailFile: _selectedThumbnail,
@@ -296,8 +389,17 @@ class _UploadPageState extends State<UploadPage> {
               if (!editMode) ...[
                 _buildTypeSelector(),
                 const SizedBox(height: 16),
-                _buildVideoSelector(),
-                const SizedBox(height: 16),
+
+                if (_selectedType == MediaType.series) ...[
+                  _buildEpisodeManagement(),
+                  const SizedBox(height: 16),
+                ],
+
+                if (_selectedType == MediaType.movie) ...[
+                  _buildVideoSelector(),
+                  const SizedBox(height: 16),
+                ],
+
                 _buildThumbnailSelector(),
                 const SizedBox(height: 16),
               ],
@@ -422,6 +524,70 @@ class _UploadPageState extends State<UploadPage> {
     );
   }
 
+  Widget _buildEpisodeManagement() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          Localized.of(context).episodeManagement,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        ..._episodeVideos.asMap().entries.map((entry) {
+          final index = entry.key;
+          final videoFile = entry.value;
+          
+          return Card(
+            margin: const EdgeInsets.only(bottom: 8),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Episode ${index + 1}${index == 0 ? ' (Required)' : ' (Optional)'}',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ListTile(
+                    leading: const Icon(Icons.video_library),
+                    title: Text(Localized.of(context).selectEpisodeVideo),
+                    subtitle: videoFile != null
+                        ? Text(videoFile.path.split('/').last)
+                        : Text(Localized.of(context).noVideoSelected),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () => _pickEpisodeVideo(index),
+                  ),
+                  if (index > 0 && videoFile != null) ...[
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () => _removeEpisode(index),
+                      icon: const Icon(Icons.remove),
+                      label: Text(Localized.of(context).removeEpisode),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }).toList(),
+        ElevatedButton.icon(
+          onPressed: _episodeVideos.length < 4 ? _addEpisode : null,
+          icon: const Icon(Icons.add),
+          label: Text(_episodeVideos.length < 4 
+              ? Localized.of(context).addEpisode 
+              : 'Maximum 4 episodes'),
+        ),
+        const SizedBox(height: 16),
+      ],
+    );
+  }
+
   Widget _buildGenreSelector() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,5 +659,27 @@ class _UploadPageState extends State<UploadPage> {
         const SizedBox(height: 16),
       ],
     );
+  }
+
+  Future<void> _pickEpisodeVideo(int episodeIndex) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+        allowMultiple: false,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() {
+          _episodeVideos[episodeIndex] = File(result.files.single.path!);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        NotificationMessageWidget.showError(
+          context,
+          Localized.of(context).failedToPickVideo(e.toString()),
+        );
+      }
+    }
   }
 }
