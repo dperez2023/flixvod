@@ -73,12 +73,6 @@ class MediaDetailBloc extends Bloc<MediaDetailEvent, MediaDetailState> {
 
   void _onPlayVideo(PlayVideoEvent event, Emitter<MediaDetailState> emit) async {
     try {
-      FlixLogger.instance.d('Playing video: ${event.media.title}');
-      
-      if (event.episodeNumber != null) {
-        FlixLogger.instance.d('Episode: ${event.episodeNumber}');
-      }
-      
       emit(state.copyWith(
         navigationAction: NavigationAction.navigateToVideoPlayer,
         navigationMedia: event.media,

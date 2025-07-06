@@ -64,10 +64,9 @@ class MediaDetailPage extends StatelessWidget {
 
             try {
               final catalogueBloc = context.read<CatalogueBloc>();
-              catalogueBloc.add(LoadCatalogue());
-            } catch (e) {
-              // CatalogueBloc might not be available in this context
-              FlixLogger.instance.d('CatalogueBloc not available for refresh');
+              catalogueBloc.add(RefreshCatalogue());
+            } catch (e, s) {
+              FlixLogger.instance.e('CatalogueBloc not available for refresh', s);
             }
           }
         },
@@ -109,9 +108,7 @@ class MediaDetailPage extends StatelessWidget {
             );
           }
 
-          // Use the loaded media from state, fallback to passed media
           final currentMedia = state.media ?? media;
-
           return _buildMediaDetailContent(context, state, currentMedia);
         },
       ),
