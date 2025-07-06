@@ -14,6 +14,34 @@ class FirebaseService {
 
   static User? get currentUser => _auth.currentUser;
 
+  /// Centralized list of available genres for the application
+  /// This will eventually be fetched from Firebase directly
+  static const List<String> availableGenres = [
+    'Action',
+    'Adventure', 
+    'Animation',
+    'Comedy',
+    'Crime',
+    'Documentary',
+    'Drama',
+    'Family',
+    'Fantasy',
+    'History',
+    'Horror',
+    'Music',
+    'Mystery',
+    'Romance',
+    'Sci-Fi',
+    'Thriller',
+    'War',
+    'Western'
+  ];
+
+  static Future<List<String>> getAvailableGenres() async {
+    // TODO: Fetch from Firebase Firestore
+    return List<String>.from(availableGenres);
+  }
+
   static Future<void> signOut() async {
     await _auth.signOut();
   }

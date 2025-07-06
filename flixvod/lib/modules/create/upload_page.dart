@@ -33,10 +33,6 @@ class _UploadPageState extends State<UploadPage> {
   final List<File?> _episodeVideos = [null];
   final List<String> _episodeTitles = [''];
 
-  final List<String> _availableGenres = [
-    'Action', 'Adventure', 'Comedy', 'Drama', 'Horror', 'Romance', 
-    'Sci-Fi', 'Thriller', 'Documentary', 'Animation', 'Fantasy', 'Mystery'
-  ];
 
   @override
   void initState() {
@@ -633,7 +629,7 @@ class _UploadPageState extends State<UploadPage> {
         Wrap(
           spacing: 8,
           runSpacing: 4,
-          children: _availableGenres.map((genre) {
+          children: FirebaseService.availableGenres.map((genre) {
             final isSelected = _selectedGenres.contains(genre);
             return FilterChip(
               label: Text(genre),
