@@ -38,12 +38,12 @@ class AppTheme {
 
   // =================== COLORS ===================
   
-  /// Background colors - iOS-style translucent blue
-  static Color primaryBackgroundColor = Colors.blue.withOpacity(0.1);
-  static Color secondaryBackgroundColor = Colors.blue.withOpacity(0.05);
-  static Color overlayBackgroundColor = Colors.blue.withOpacity(0.8);
-  static Color cardBackgroundColor = Colors.blue.withOpacity(0.15);
-  static Color errorBackgroundColor = Colors.red.withOpacity(0.1);
+  /// Background colors - Dark theme with blue accents
+  static const Color primaryBackgroundColor = Color(0xFF1A1A1A);
+  static const Color secondaryBackgroundColor = Color(0xFF2A2A2A);
+  static const Color overlayBackgroundColor = Color(0xFF0D47A1);
+  static const Color cardBackgroundColor = Color(0xFF333333);
+  static const Color errorBackgroundColor = Color(0xFF4A1A1A);
 
   /// Foreground colors - White-based
   static const Color primaryForegroundColor = Colors.white;
@@ -208,6 +208,46 @@ class AppTheme {
   static const double playButtonSize = 50.0;
   static const double largePlayButtonSize = 80.0;
   static const double loadingIndicatorSize = 20.0;
+
+  // =================== BUTTON STYLES ===================
+  
+  /// Primary elevated button style (blue background)
+  static ButtonStyle primaryElevatedButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: overlayBackgroundColor,
+    foregroundColor: primaryForegroundColor,
+    padding: buttonPadding,
+  );
+
+  /// Error elevated button style (red background)
+  static ButtonStyle errorElevatedButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: errorColor,
+    foregroundColor: whiteForegroundColor,
+    padding: buttonPadding,
+  );
+
+  /// Secondary elevated button style (for disabled states)
+  static ButtonStyle secondaryElevatedButtonStyle = ElevatedButton.styleFrom(
+    backgroundColor: overlayBackgroundColor,
+    foregroundColor: primaryForegroundColor,
+    disabledBackgroundColor: mutedForegroundColor,
+    disabledForegroundColor: lightForegroundColor,
+    padding: buttonPadding,
+  );
+
+  /// Basic elevated button style (theme default with padding)
+  static ButtonStyle basicElevatedButtonStyle = ElevatedButton.styleFrom(
+    padding: buttonPadding,
+  );
+
+  /// Primary text button style (muted foreground)
+  static ButtonStyle primaryTextButtonStyle = TextButton.styleFrom(
+    foregroundColor: mutedForegroundColor,
+  );
+
+  /// Error text button style (red foreground)
+  static ButtonStyle errorTextButtonStyle = TextButton.styleFrom(
+    foregroundColor: errorColor,
+  );
 
   // =================== HELPER METHODS ===================
   
