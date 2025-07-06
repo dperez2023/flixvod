@@ -4,7 +4,7 @@ import 'catalogue_state.dart';
 import '../../../models/media.dart';
 import '../../../services/storage/firebase_service.dart';
 import '../../../services/cache_service.dart';
-import '../../../logger.dart';
+import '../../../utils/logger.dart';
 
 class CatalogueBloc extends Bloc<CatalogueEvent, CatalogueState> {
   CatalogueBloc() : super(const CatalogueState()) {

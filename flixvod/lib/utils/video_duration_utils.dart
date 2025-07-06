@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import '../logger.dart';
+import 'logger.dart';
 import '../models/media.dart';
 
 class VideoDurationUtils {

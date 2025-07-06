@@ -4,7 +4,7 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'dart:async';
 import '../../models/media.dart';
-import '../../logger.dart';
+import '../../utils/logger.dart';
 import '../../localization/localized.dart';
 import '../../core/app_theme.dart';
 import '../../core/app_icons.dart';

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flixvod/logger.dart';
+import 'package:flixvod/utils/logger.dart';
 import '../../models/media.dart';
 import '../../utils/video_duration_utils.dart';
 import '../cache_service.dart';

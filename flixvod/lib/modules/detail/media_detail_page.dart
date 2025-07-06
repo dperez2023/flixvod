@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../models/media.dart';
 import '../../localization/localized.dart';
 import '../../services/storage/firebase_service.dart';
-import '../../logger.dart';
+import '../../utils/logger.dart';
 import '../player/video_player_screen.dart';
 import '../common/notification_message_widget.dart';
 import '../catalogue/bloc/catalogue_bloc.dart';
