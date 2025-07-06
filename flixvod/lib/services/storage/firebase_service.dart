@@ -519,11 +519,15 @@ class FirebaseService {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      if (type == MediaType.series && currentEpisodes != null) {
-        updateData['episodes'] = currentEpisodes;
-        updateData['totalEpisodes'] = currentEpisodes.length;
+      if (type == MediaType.series) {
+        if (currentEpisodes != null && currentEpisodes.isNotEmpty) {
+          updateData['episodes'] = currentEpisodes;
+          updateData['totalEpisodes'] = currentEpisodes.length;
+        } else {
+          throw Exception('Series must have episodes');
+        }
       } else {
-        throw Exception('Serie doesnt have episodes');
+        updateData['totalEpisodes'] = null;
       }
 
       // Update Firestore with the changes
