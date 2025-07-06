@@ -39,14 +39,14 @@ class AppIcons {
   // =================== MEDIA ICONS ===================
   
   /// Movie icon for media type indicators
-  static const Icon movie = Icon(
+  static final Icon movie = Icon(
     Icons.movie,
     color: AppTheme.movieTypeColor,
     size: AppTheme.mediumIconSize,
   );
 
   /// TV series icon for media type indicators
-  static const Icon series = Icon(
+  static final Icon series = Icon(
     Icons.tv,
     color: AppTheme.seriesTypeColor,
     size: AppTheme.mediumIconSize,
@@ -185,7 +185,7 @@ class AppIcons {
   );
 
   /// Info icon
-  static const Icon info = Icon(
+  static final Icon info = Icon(
     Icons.info,
     color: AppTheme.infoColor,
     size: AppTheme.extraLargeIconSize,

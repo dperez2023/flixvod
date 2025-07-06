@@ -38,55 +38,63 @@ class AppTheme {
 
   // =================== COLORS ===================
   
-  /// Background colors
-  static const Color primaryBackgroundColor = Colors.white;
-  static const Color secondaryBackgroundColor = Color(0xFFF5F5F5);
-  static Color overlayBackgroundColor = Colors.black.withOpacity(0.7);
-  static Color cardBackgroundColor = Colors.grey[300]!;
-  static Color errorBackgroundColor = Colors.red[50]!;
+  /// Background colors - iOS-style translucent blue
+  static Color primaryBackgroundColor = Colors.blue.withOpacity(0.1);
+  static Color secondaryBackgroundColor = Colors.blue.withOpacity(0.05);
+  static Color overlayBackgroundColor = Colors.blue.withOpacity(0.8);
+  static Color cardBackgroundColor = Colors.blue.withOpacity(0.15);
+  static Color errorBackgroundColor = Colors.red.withOpacity(0.1);
 
-  /// Foreground colors
-  static const Color primaryForegroundColor = Colors.black;
+  /// Foreground colors - White-based
+  static const Color primaryForegroundColor = Colors.white;
   static const Color secondaryForegroundColor = Colors.white;
-  static Color mutedForegroundColor = Colors.grey[600]!;
-  static Color lightForegroundColor = Colors.grey[500]!;
+  static Color mutedForegroundColor = Colors.white.withOpacity(0.7);
+  static Color lightForegroundColor = Colors.white.withOpacity(0.5);
   static const Color whiteForegroundColor = Colors.white;
   static const Color white70ForegroundColor = Colors.white70;
 
   /// Border colors
-  static Color errorBorderColor = Colors.red[200]!;
-  static const Color primaryBorderColor = Colors.grey;
+  static Color errorBorderColor = Colors.red.withOpacity(0.3);
+  static Color primaryBorderColor = Colors.white.withOpacity(0.3);
 
   /// Status colors
   static const Color errorColor = Colors.red;
-  static Color errorTextColor = Colors.red[700]!;
+  static Color errorTextColor = Colors.red[300]!;
   static const Color successColor = Colors.green;
   static const Color warningColor = Colors.orange;
-  static const Color infoColor = Colors.blue;
+  static Color infoColor = Colors.blue.withOpacity(0.8);
 
   /// Rating and interaction colors
   static const Color ratingColor = Colors.amber;
-  static Color inactiveRatingColor = Colors.grey[300]!;
+  static Color inactiveRatingColor = Colors.white.withOpacity(0.3);
   static const Color starColor = Colors.amber;
 
   /// Media type colors
-  static const Color movieTypeColor = Colors.blue;
-  static const Color seriesTypeColor = Colors.orange;
+  static Color movieTypeColor = Colors.blue.withOpacity(0.8);
+  static Color seriesTypeColor = Colors.orange.withOpacity(0.8);
 
   /// Player colors
-  static const Color playerBackgroundColor = Colors.black;
+  static Color playerBackgroundColor = Colors.blue.withOpacity(0.9);
   static const Color playerControlsColor = Colors.white;
-  static Color playerBufferedColor = Colors.grey[300]!;
-  static Color playerControlBackgroundColor = Colors.black54;
+  static Color playerBufferedColor = Colors.white.withOpacity(0.3);
+  static Color playerControlBackgroundColor = Colors.blue.withOpacity(0.6);
 
   /// Badge colors
-  static const Color ratingBadgeColor = Colors.black87;
+  static Color ratingBadgeColor = Colors.blue.withOpacity(0.8);
 
   // =================== TEXT STYLES ===================
   
   /// Common text styles with consistent colors and alignment
+  static const TextStyle primaryTextStyle = TextStyle(
+    color: Colors.white,
+  );
+
   static const TextStyle whiteTextStyle = TextStyle(
     color: Colors.white,
+  );
+
+  static TextStyle mutedTextStyle = TextStyle(
+    color: Colors.white.withOpacity(0.7),
   );
 
   static const TextStyle white70TextStyle = TextStyle(
@@ -139,14 +147,14 @@ class AppTheme {
   );
 
   /// Empty state styles
-  static const TextStyle emptyStateTitleStyle = TextStyle(
+  static TextStyle emptyStateTitleStyle = TextStyle(
     fontSize: 18,
-    color: Colors.grey,
+    color: Colors.white.withOpacity(0.8),
   );
 
-  static const TextStyle emptyStateSubtitleStyle = TextStyle(
+  static TextStyle emptyStateSubtitleStyle = TextStyle(
     fontSize: 14,
-    color: Colors.grey,
+    color: Colors.white.withOpacity(0.6),
   );
 
   /// Media type badge style
@@ -242,6 +250,7 @@ class AppTheme {
   static BoxDecoration createCardDecoration() {
     return BoxDecoration(
       color: cardBackgroundColor,
+      borderRadius: BorderRadius.circular(mediumBorderRadius),
     );
   }
 
@@ -261,7 +270,7 @@ class AppTheme {
         end: Alignment.bottomCenter,
         colors: [
           Colors.transparent,
-          overlayBackgroundColor,
+          Colors.blue.withOpacity(0.8),
         ],
       ),
     );
