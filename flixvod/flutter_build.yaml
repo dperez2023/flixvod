@@ -1,0 +1,16 @@
+# Flutter build configuration
+# See https://docs.flutter.dev/development/tools/flutter-gradle-plugin
+
+targets:
+  $default:
+    builders:
+      flutter_tools:kernel_snapshot:
+        options:
+          dart2js_args:
+            - --minify
+
+platforms:
+  android:
+    minSdkVersion: 23
+  ios:
+    deploymentTarget: 12.0
