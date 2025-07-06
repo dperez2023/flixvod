@@ -171,16 +171,11 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                           '${currentMedia.duration} ${Localized.of(context).min}',
                           style: Theme.of(context).textTheme.titleMedium,
                         )
-                      else ...[
-                        Text(
-                          '${currentMedia.seasons} ${Localized.of(context).seasons}',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
+                      else
                         Text(
                           '${currentMedia.totalEpisodes} ${Localized.of(context).episodes}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                      ],
                     ],
                   ),
                   
@@ -524,7 +519,6 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
       year: currentMedia.year,
       rating: currentMedia.rating,
       genres: currentMedia.genres,
-      seasons: currentMedia.seasons,
       totalEpisodes: currentMedia.totalEpisodes,
       duration: currentMedia.duration,
       videoUrl: currentMedia.getVideoUrl(episodeNumber),

@@ -81,7 +81,6 @@ class FirebaseService {
         year: DateTime.now().year,
         rating: rating,
         genres: genres,
-        seasons: type == MediaType.series ? 1 : null,
         totalEpisodes: type == MediaType.series ? 1 : null,
         duration: videoDuration,
       );
@@ -96,7 +95,6 @@ class FirebaseService {
         'year': media.year,
         'rating': media.rating,
         'genres': genres,
-        'seasons': media.seasons,
         'totalEpisodes': media.totalEpisodes,
         'duration': media.duration,
         'userId': user.uid,
@@ -183,7 +181,6 @@ class FirebaseService {
         year: DateTime.now().year,
         rating: rating,
         genres: genres,
-        seasons: 1, // Currently supporting only 1 season
         totalEpisodes: episodes.length,
         duration: totalDuration,
         episodes: episodes,
@@ -199,7 +196,6 @@ class FirebaseService {
         'year': media.year,
         'rating': media.rating,
         'genres': genres,
-        'seasons': media.seasons,
         'totalEpisodes': media.totalEpisodes,
         'duration': media.duration,
         'episodes': episodes.map((e) => e.toJson()).toList(),
@@ -235,7 +231,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -272,7 +267,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -412,7 +406,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -449,7 +442,6 @@ class FirebaseService {
           year: data['year'],
           rating: (data['rating'] as num).toDouble(),
           genres: List<String>.from(data['genres']),
-          seasons: data['seasons'],
           totalEpisodes: data['totalEpisodes'],
           duration: data['duration'],
           episodes: (data['episodes'] as List<dynamic>?)
@@ -537,7 +529,6 @@ class FirebaseService {
         year: data['year'],
         rating: (data['rating'] as num).toDouble(),
         genres: List<String>.from(data['genres']),
-        seasons: data['seasons'],
         totalEpisodes: data['totalEpisodes'],
         duration: data['duration'],
         episodes: (data['episodes'] as List<dynamic>?)

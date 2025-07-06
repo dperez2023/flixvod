@@ -207,7 +207,7 @@ class MediaCard extends StatelessWidget {
                             ? '${media.year} • ${media.duration}min'
                             : media.episodeCount > 0
                                 ? '${media.year} • ${media.episodeCount} episodes'
-                                : '${media.year} • ${media.seasons} seasons',
+                                : 'No episodes',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppTheme.mutedForegroundColor,
                         ),

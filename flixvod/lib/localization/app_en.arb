@@ -85,11 +85,6 @@
     "description": "Label for duration"
   },
   
-  "seasons": "seasons",
-  "@seasons": {
-    "description": "Label for seasons count"
-  },
-  
   "episodes": "Episodes", 
   "@episodes": {
     "description": "Label for episodes count"

@@ -38,7 +38,6 @@ class Media extends Equatable {
   final int year;
   final double rating;
   final List<String> genres;
-  final int? seasons;
   final int? totalEpisodes;
   final int? duration;
   final String? videoUrl;
@@ -53,7 +52,6 @@ class Media extends Equatable {
     required this.year,
     required this.rating,
     required this.genres,
-    this.seasons,
     this.totalEpisodes,
     this.duration,
     this.videoUrl,
@@ -93,7 +91,6 @@ class Media extends Equatable {
       'year': year,
       'rating': rating,
       'genres': genres,
-      'seasons': seasons,
       'totalEpisodes': totalEpisodes,
       'duration': duration,
       'videoUrl': videoUrl,
@@ -114,7 +111,6 @@ class Media extends Equatable {
       year: json['year'] ?? 0,
       rating: (json['rating'] ?? 0.0).toDouble(),
       genres: List<String>.from(json['genres'] ?? []),
-      seasons: json['seasons'],
       totalEpisodes: json['totalEpisodes'],
       duration: json['duration'],
       videoUrl: json['videoUrl'],
@@ -134,7 +130,6 @@ class Media extends Equatable {
         year,
         rating,
         genres,
-        seasons,
         totalEpisodes,
         duration,
         videoUrl,
