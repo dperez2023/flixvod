@@ -7,6 +7,7 @@ import '../../models/media.dart';
 import '../../logger.dart';
 import '../../localization/localized.dart';
 import '../../core/app_theme.dart';
+import '../../core/app_icons.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final Media media;
@@ -153,13 +154,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
           logger.e('Video player error: $errorMessage');
           return Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.error,
-                  color: AppTheme.playerControlsColor,
-                  size: 64,
-                ),
+              mainAxisAlignment: MainAxisAlignment.center,                children: [
+                  AppIcons.errorLarge,
                 AppTheme.mediumVerticalSpacer,
                 Text(
                   Localized.of(context).errorPlayingVideo,
@@ -219,11 +215,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.error,
-                        color: AppTheme.playerControlsColor,
-                        size: 64,
-                      ),
+                      AppIcons.errorLarge,
                       AppTheme.mediumVerticalSpacer,
                       Text(
                         Localized.of(context).failedToLoadVideo,
@@ -276,11 +268,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                                   color: AppTheme.playerControlBackgroundColor,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                child: Icon(
-                                  Icons.arrow_back,
-                                  color: AppTheme.playerControlsColor,
-                                  size: AppTheme.largeIconSize,
-                                ),
+                                child: AppIcons.back,
                               ),
                             ),
                           ),
