@@ -90,7 +90,7 @@
     "description": "Label for seasons count"
   },
   
-  "episodes": "episodes", 
+  "episodes": "Episodes", 
   "@episodes": {
     "description": "Label for episodes count"
   },
