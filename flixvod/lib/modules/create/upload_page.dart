@@ -470,8 +470,6 @@ class _UploadPageState extends State<UploadPage> {
               AppTheme.mediumVerticalSpacer,
               _buildGenreSelector(),
               AppTheme.mediumVerticalSpacer,
-
-              
             ],
           ),
         ),
@@ -605,13 +603,18 @@ class _UploadPageState extends State<UploadPage> {
             ),
           );
         }).toList(),
-        ElevatedButton.icon(
-          onPressed: _episodeVideos.length < 4 ? _addEpisode : null,
-          icon: const Icon(Icons.add),
-          label: Text(_episodeVideos.length < 4 
-              ? Localized.of(context).addEpisode 
-              : 'Maximum 4 episodes'),
-          style: AppTheme.secondaryElevatedButtonStyle,
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.add),
+            title: Text(_episodeVideos.length < 4 
+                ? Localized.of(context).addEpisode 
+                : 'Maximum 4 episodes'),
+            trailing: _episodeVideos.length < 4 
+                ? const Icon(Icons.arrow_forward_ios)
+                : null,
+            onTap: _episodeVideos.length < 4 ? _addEpisode : null,
+            enabled: _episodeVideos.length < 4,
+          ),
         ),
         AppTheme.mediumVerticalSpacer,
       ],

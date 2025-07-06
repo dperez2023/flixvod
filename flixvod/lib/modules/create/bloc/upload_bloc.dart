@@ -68,7 +68,6 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
         inputFile: event.videoFile,
       );
       
-      FlixLogger.instance.d('Video compressed successfully');
       emit(state.copyWith(
         status: UploadStatus.initial,
         compressionProgress: 1.0,
