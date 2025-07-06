@@ -9,6 +9,7 @@ import '../common/notification_message_widget.dart';
 import '../catalogue/bloc/catalogue_bloc.dart';
 import '../catalogue/bloc/catalogue_event.dart';
 import '../create/upload_page.dart';
+import '../../core/app_theme.dart';
 
 class MediaDetailPage extends StatefulWidget {
   final Media media;
@@ -49,24 +50,12 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                   ),
                 ),
                 child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.7),
-                      ],
-                    ),
-                  ),
+                  decoration: AppTheme.createGradientOverlayDecoration(),
                   child: currentMedia.isMovie ? Center(
                     child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
-                        shape: BoxShape.circle,
-                      ),
+                      width: AppTheme.largePlayButtonSize,
+                      height: AppTheme.largePlayButtonSize,
+                      decoration: AppTheme.createPlayButtonDecoration(),
                       child: IconButton(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -75,10 +64,10 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                             ),
                           );
                         },
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
-                          size: 40,
+                          color: AppTheme.whiteForegroundColor,
+                          size: AppTheme.extraLargeIconSize,
                         ),
                       ),
                     ),
@@ -91,7 +80,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
           // Content
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: AppTheme.standardPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -109,20 +98,13 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: currentMedia.isMovie ? Colors.blue : Colors.orange,
-                          borderRadius: BorderRadius.circular(12),
+                        padding: AppTheme.largeBadgePadding,
+                        decoration: AppTheme.createLargeBadgeDecoration(
+                          AppTheme.getMediaTypeColor(currentMedia.isMovie),
                         ),
                         child: Text(
                           currentMedia.isMovie ? Localized.of(context).movie : Localized.of(context).series,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTheme.mediaTypeBadgeStyle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -130,7 +112,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                     ],
                   ),
                   
-                  const SizedBox(height: 16),
+                  AppTheme.mediumVerticalSpacer,
                   
                   // Rating and year
                   Wrap(
@@ -141,8 +123,8 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 20),
-                          const SizedBox(width: 4),
+                          Icon(Icons.star, color: AppTheme.starColor, size: AppTheme.mediumIconSize),
+                          AppTheme.smallHorizontalSpacer,
                           Text(
                             currentMedia.rating.toString(),
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -173,7 +155,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                     ],
                   ),
                   
-                  const SizedBox(height: 16),
+                  AppTheme.mediumVerticalSpacer,
                   
                   // Genres
                   Wrap(
@@ -185,7 +167,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                     )).toList(),
                   ),
                   
-                  const SizedBox(height: 24),
+                  AppTheme.largeVerticalSpacer,
                   
                   // Description
                   Text(
@@ -194,7 +176,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  AppTheme.smallVerticalSpacer,
                   Text(
                     currentMedia.description,
                     style: Theme.of(context).textTheme.bodyLarge,
@@ -203,7 +185,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   
-                  const SizedBox(height: 32),
+                  AppTheme.extraLargeVerticalSpacer,
                   
                   // Episodes section (only for series)
                   if (currentMedia.isSeries && currentMedia.episodes.isNotEmpty) ...[
@@ -213,9 +195,9 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    AppTheme.mediumVerticalSpacer,
                     _buildEpisodesSection(),
-                    const SizedBox(height: 32),
+                    AppTheme.extraLargeVerticalSpacer,
                   ],
                   
                   Row(
@@ -227,12 +209,12 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                           label: Text(Localized.of(context).editMedia),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            foregroundColor: AppTheme.secondaryForegroundColor,
+                            padding: AppTheme.buttonPadding,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      AppTheme.extraLargeHorizontalSpacer,
                       
                       Expanded(
                         child: ElevatedButton.icon(
@@ -240,16 +222,16 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                           icon: const Icon(Icons.delete),
                           label: Text(Localized.of(context).deleteMedia),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: AppTheme.errorColor,
+                            foregroundColor: AppTheme.secondaryForegroundColor,
+                            padding: AppTheme.buttonPadding,
                           ),
                         ),
                       ),
                     ],
                   ),
                   
-                  const SizedBox(height: 32),
+                  AppTheme.extraLargeVerticalSpacer,
                 ],
               ),
             ),
@@ -280,8 +262,8 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                 await _deleteMedia(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+                backgroundColor: AppTheme.errorColor,
+                foregroundColor: AppTheme.whiteForegroundColor,
               ),
               child: Text(Localized.of(context).delete),
             ),
@@ -394,7 +376,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
         final isFirst = index == 0;
         
         return Card(
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: AppTheme.smallVerticalSpacerHeight),
           child: ExpansionTile(
             //First episode is expanded by default whereas others are collapsed
             initiallyExpanded: isFirst,
@@ -423,7 +405,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
             ),
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: AppTheme.standardPadding,
                 child: Column(
                   children: [
                     // Episode thumbnail (using same image as series)
@@ -470,28 +452,18 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                             top: 8,
                             left: 8,
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black87,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                              padding: AppTheme.badgePadding,
+                              decoration: AppTheme.createBadgeDecoration(AppTheme.ratingBadgeColor),
                               child: Text(
                                 'EP ${episode.episodeNumber}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppTheme.episodeBadgeTextStyle,
                               ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    AppTheme.mediumVerticalSpacer,
                     // Play button
                     SizedBox(
                       width: double.infinity,
@@ -501,8 +473,8 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                         label: Text('Play Episode ${episode.episodeNumber}'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          foregroundColor: AppTheme.whiteForegroundColor,
+                          padding: AppTheme.buttonPadding,
                         ),
                       ),
                     ),
