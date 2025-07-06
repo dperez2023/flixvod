@@ -56,7 +56,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     _hideTimer?.cancel();
     _chewieController?.dispose();
     _videoPlayerController?.dispose();
-    // Ensure orientation is restored (fallback safety)
+    // Ensure orientation is restored when disposing (reset orientation have to cases: Reset by back button or by dispose)
     _resetOrientation();
     super.dispose();
   }
