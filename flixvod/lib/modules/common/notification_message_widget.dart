@@ -19,17 +19,18 @@ class NotificationMessageWidget {
   }
 
   static void _showMessage(BuildContext context, String message, Color backgroundColor) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    scaffoldMessenger.showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: backgroundColor,
-        behavior: SnackBarBehavior.fixed, // Changed from floating to fixed
+        behavior: SnackBarBehavior.fixed,
         duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'Dismiss',
           textColor: Colors.white,
           onPressed: () {
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            scaffoldMessenger.hideCurrentSnackBar();
           },
         ),
       ),

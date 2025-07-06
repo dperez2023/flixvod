@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../models/media.dart';
 import '../../detail/media_detail_page.dart';
 import '../../player/video_player_screen.dart';
 import '../../../services/storage/firebase_service.dart';
 import '../../../localization/localized.dart';
 import '../../common/notification_message_widget.dart';
+import '../bloc/catalogue_bloc.dart';
 
 class MediaCard extends StatelessWidget {
   final Media media;
@@ -42,21 +44,26 @@ class MediaCard extends StatelessWidget {
   }
 
   Future<void> _deleteMedia(BuildContext context) async {
+    final l10n = Localized.of(context);
+    final successMessage = l10n.deleted(media.title);
+    
     try {
       await FirebaseService.deleteMedia(media.id);
-
-      //TODO: Change with better UI
-      NotificationMessageWidget.showSuccess(
-        context, 
-        Localized.of(context).deleted(media.title),
-      );
+      if (context.mounted) {
+        NotificationMessageWidget.showSuccess(
+          context, 
+          successMessage,
+        );
+      }
 
       onDeleted?.call();
     } catch (e) {
-      NotificationMessageWidget.showError(
-        context,
-        Localized.of(context).failedToDelete(e.toString()),
-      );
+      if (context.mounted) {
+        NotificationMessageWidget.showError(
+          context,
+          l10n.failedToDelete(e.toString()),
+        );
+      }
     }
   }
 
@@ -69,9 +76,13 @@ class MediaCard extends StatelessWidget {
       ),
       child: InkWell(
         onTap: () {
+          final catalogueBloc = context.read<CatalogueBloc>();
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => MediaDetailPage(media: media),
+              builder: (context) => BlocProvider.value(
+                value: catalogueBloc,
+                child: MediaDetailPage(media: media),
+              ),
             ),
           );
         },
@@ -116,6 +127,8 @@ class MediaCard extends StatelessWidget {
                             fontSize: 8,
                             fontWeight: FontWeight.bold,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
@@ -208,6 +221,8 @@ class MediaCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.grey[600],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
                       // Description
