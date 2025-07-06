@@ -132,31 +132,31 @@ class MediaCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Play Button Overlay
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => VideoPlayerScreen(media: media),
+                    if (media.isMovie)
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => VideoPlayerScreen(media: media),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.7),
+                              shape: BoxShape.circle,
                             ),
-                          );
-                        },
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.7),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 28,
+                            child: Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 28,
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
