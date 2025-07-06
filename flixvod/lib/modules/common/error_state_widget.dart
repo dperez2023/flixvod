@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../localization/localized.dart';
 import '../../core/app_theme.dart';
+import '../../core/app_icons.dart';
 
 class ErrorStateWidget extends StatelessWidget {
   final String? errorMessage;
@@ -18,7 +19,7 @@ class ErrorStateWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error, size: 64, color: AppTheme.errorColor),
+          AppIcons.errorLarge,
           AppTheme.mediumVerticalSpacer,
           Text(
             errorMessage ?? Localized.of(context).anErrorOccurred,

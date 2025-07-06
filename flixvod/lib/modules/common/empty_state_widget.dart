@@ -1,6 +1,7 @@
 import 'package:flixvod/localization/localized.dart';
 import 'package:flutter/material.dart';
 import '../../core/app_theme.dart';
+import '../../core/app_icons.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
@@ -42,7 +43,7 @@ class EmptyStateWidget extends StatelessWidget {
             AppTheme.largeVerticalSpacer,
             ElevatedButton.icon(
               onPressed: onRefresh,
-              icon: const Icon(Icons.refresh),
+              icon: AppIcons.refresh,
               label: Text(refreshButtonText ?? Localized.of(context).refresh),
             ),
           ],
