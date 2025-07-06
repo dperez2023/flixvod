@@ -186,8 +186,11 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                     spacing: 8,
                     runSpacing: 8,
                     children: currentMedia.genres.map((genre) => Chip(
-                      label: Text(genre),
-                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      label: Text(
+                        genre,
+                        style: AppTheme.primaryTextStyle.copyWith(fontSize: 12),
+                      ),
+                      backgroundColor: AppTheme.overlayBackgroundColor,
                     )).toList(),
                   ),
                   
@@ -231,11 +234,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                           onPressed: () => _navigateToEditPage(context),
                           icon: AppIcons.edit,
                           label: Text(Localized.of(context).editMedia),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            foregroundColor: AppTheme.secondaryForegroundColor,
-                            padding: AppTheme.buttonPadding,
-                          ),
+                          style: AppTheme.primaryElevatedButtonStyle,
                         ),
                       ),
                       AppTheme.extraLargeHorizontalSpacer,
@@ -245,11 +244,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                           onPressed: () => _showDeleteConfirmation(context),
                           icon: AppIcons.delete,
                           label: Text(Localized.of(context).deleteMedia),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.errorColor,
-                            foregroundColor: AppTheme.secondaryForegroundColor,
-                            padding: AppTheme.buttonPadding,
-                          ),
+                          style: AppTheme.errorElevatedButtonStyle,
                         ),
                       ),
                     ],
@@ -285,10 +280,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                 Navigator.of(dialogContext).pop();
                 await _deleteMedia(context);
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppTheme.errorColor,
-                foregroundColor: AppTheme.whiteForegroundColor,
-              ),
+              style: AppTheme.errorElevatedButtonStyle,
               child: Text(Localized.of(context).delete),
             ),
           ],
