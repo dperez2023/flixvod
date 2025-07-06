@@ -97,32 +97,6 @@ class _FirebaseErrorScreenState extends State<FirebaseErrorScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                ExpansionTile(
-                  title: const Text('Troubleshooting Tips'),
-                  children: [
-                    const ListTile(
-                      leading: Icon(Icons.wifi, color: Colors.blue),
-                      title: Text('Check WiFi Connection'),
-                      subtitle: Text('Make sure you\'re connected to the internet'),
-                    ),
-                    const ListTile(
-                      leading: Icon(Icons.signal_cellular_4_bar, color: Colors.green),
-                      title: Text('Try Mobile Data'),
-                      subtitle: Text('If on WiFi, try switching to mobile data'),
-                    ),
-                    const ListTile(
-                      leading: Icon(Icons.vpn_key, color: Colors.orange),
-                      title: Text('Check VPN/Firewall'),
-                      subtitle: Text('Disable VPN or check firewall settings'),
-                    ),
-                    const ListTile(
-                      leading: Icon(Icons.restart_alt, color: Colors.purple),
-                      title: Text('Restart App'),
-                      subtitle: Text('Close and reopen the application'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
                 Text(
                   'Make sure you have an active internet connection',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
