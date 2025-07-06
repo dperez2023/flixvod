@@ -517,7 +517,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
   }
 
   void _playEpisode(int episodeNumber) {
-    // Create a copy of media with specific episode for video player
+    // Media copy to navigate (original stays the same)
     final episodeMedia = Media(
       id: currentMedia.id,
       title: '${currentMedia.title} - Episode $episodeNumber',
