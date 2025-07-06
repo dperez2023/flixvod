@@ -197,12 +197,6 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                   AppTheme.largeVerticalSpacer,
                   
                   // Description
-                  Text(
-                    Localized.of(context).description,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   AppTheme.smallVerticalSpacer,
                   Text(
                     currentMedia.description,
