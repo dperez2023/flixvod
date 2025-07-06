@@ -494,7 +494,7 @@ class _MediaDetailPageState extends State<MediaDetailPage> {
                               padding: AppTheme.badgePadding,
                               decoration: AppTheme.createBadgeDecoration(AppTheme.ratingBadgeColor),
                               child: Text(
-                                'EP ${episode.episodeNumber}',
+                                'Episode ${episode.episodeNumber}',
                                 style: AppTheme.episodeBadgeTextStyle,
                               ),
                             ),
