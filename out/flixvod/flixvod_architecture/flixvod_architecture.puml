@@ -1,0 +1,73 @@
+@startuml FlixVOD Architecture - High Level Overview
+
+!theme plain
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+' ============= UI LAYER =============
+package "UI Layer" #lightblue {
+  component [CataloguePage] as CataloguePage
+  component [MediaDetailPage] as MediaDetailPage
+  component [UploadPage] as UploadPage
+  component [VideoPlayerScreen] as VideoPlayerScreen
+}
+
+' ============= STATE MANAGEMENT =============
+package "State Management (Bloc)" #lightyellow {
+  component [CatalogueBloc] as CatalogueBloc
+  component [MediaDetailBloc] as MediaDetailBloc
+  component [UploadBloc] as UploadBloc
+}
+
+' ============= SERVICES =============
+package "Services" #lightgreen {
+  component [FirebaseService] as FirebaseService
+  component [CacheService] as CacheService
+  component [VideoCompressionService] as VideoCompressionService
+}
+
+' ============= CORE =============
+package "Core" #lightcoral {
+  component [AppTheme] as AppTheme
+  component [AppIcons] as AppIcons
+  component [MediaModel] as MediaModel
+  component [Logger] as Logger
+}
+
+' ============= FIREBASE =============
+cloud "Firebase" #lightgreen {
+  database "Firestore" as Firestore
+  storage "Cloud Storage" as CloudStorage
+}
+
+' ============= MAIN RELATIONSHIPS =============
+CataloguePage --> CatalogueBloc
+MediaDetailPage --> MediaDetailBloc
+UploadPage --> UploadBloc
+
+CatalogueBloc --> FirebaseService
+MediaDetailBloc --> FirebaseService
+UploadBloc --> FirebaseService
+
+CatalogueBloc --> CacheService
+UploadPage --> VideoCompressionService
+
+FirebaseService --> Firestore
+FirebaseService --> CloudStorage
+FirebaseService --> MediaModel
+
+CataloguePage --> AppTheme
+MediaDetailPage --> AppTheme
+UploadPage --> AppTheme
+VideoPlayerScreen --> AppTheme
+
+CataloguePage --> AppIcons
+MediaDetailPage --> AppIcons
+UploadPage --> AppIcons
+
+MediaDetailPage --> VideoPlayerScreen
+CataloguePage --> MediaDetailPage
+MediaDetailPage --> UploadPage
+
+@enduml
