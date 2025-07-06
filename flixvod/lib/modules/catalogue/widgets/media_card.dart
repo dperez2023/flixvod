@@ -44,21 +44,26 @@ class MediaCard extends StatelessWidget {
   }
 
   Future<void> _deleteMedia(BuildContext context) async {
+    final l10n = Localized.of(context);
+    final successMessage = l10n.deleted(media.title);
+    
     try {
       await FirebaseService.deleteMedia(media.id);
-
-      //TODO: Change with better UI
-      NotificationMessageWidget.showSuccess(
-        context, 
-        Localized.of(context).deleted(media.title),
-      );
+      if (context.mounted) {
+        NotificationMessageWidget.showSuccess(
+          context, 
+          successMessage,
+        );
+      }
 
       onDeleted?.call();
     } catch (e) {
-      NotificationMessageWidget.showError(
-        context,
-        Localized.of(context).failedToDelete(e.toString()),
-      );
+      if (context.mounted) {
+        NotificationMessageWidget.showError(
+          context,
+          l10n.failedToDelete(e.toString()),
+        );
+      }
     }
   }
 

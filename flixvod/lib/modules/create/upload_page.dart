@@ -62,6 +62,7 @@ class _UploadPageState extends State<UploadPage> {
   }
 
   Future<void> _pickVideo() async {
+    final l10n = Localized.of(context);
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.video,
@@ -74,11 +75,12 @@ class _UploadPageState extends State<UploadPage> {
         });
       }
     } catch (e) {
-      _showError(Localized.of(context).failedToPickVideo(e.toString()));
+      _showError(l10n.failedToPickVideo(e.toString()));
     }
   }
 
   Future<void> _pickThumbnail() async {
+    final l10n = Localized.of(context);
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -89,7 +91,7 @@ class _UploadPageState extends State<UploadPage> {
         });
       }
     } catch (e) {
-      _showError(Localized.of(context).failedToPickThumbnail(e.toString()));
+      _showError(l10n.failedToPickThumbnail(e.toString()));
     }
   }
 
@@ -105,6 +107,11 @@ class _UploadPageState extends State<UploadPage> {
       return;
     }
 
+    final l10n = Localized.of(context);
+    final successMessage = editMode 
+      ? l10n.successfullyUpdated(_titleController.text)
+      : l10n.successfullyUploaded(_titleController.text);
+
     setState(() {
       _isUploading = true;
     });
@@ -119,15 +126,11 @@ class _UploadPageState extends State<UploadPage> {
       }
 
       if (mounted) {
-        final message = editMode 
-          ? Localized.of(context).successfullyUpdated(_titleController.text)
-          : Localized.of(context).successfullyUploaded(_titleController.text);
-        
-        NotificationMessageWidget.showSuccess(context, message);
+        NotificationMessageWidget.showSuccess(context, successMessage);
         Navigator.pop(context, true); // Return true to indicate success
       }
     } catch (e) {
-      _showError(Localized.of(context).uploadFailed(e.toString()));
+      _showError(l10n.uploadFailed(e.toString()));
     } finally {
       setState(() {
         _isUploading = false;
