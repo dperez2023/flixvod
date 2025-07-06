@@ -7,6 +7,7 @@ import '../../services/storage/firebase_service.dart';
 import '../../services/video_compression_service.dart';
 import '../../localization/localized.dart';
 import '../common/notification_message_widget.dart';
+import '../../core/app_theme.dart';
 
 class UploadPage extends StatefulWidget {
   final Media? mediaToEdit;
@@ -193,9 +194,9 @@ class _UploadPageState extends State<UploadPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(Localized.of(context).videoSizeIs(videoInfo.sizeString)),
-              const SizedBox(height: 8),
+              AppTheme.smallVerticalSpacer,
               Text(Localized.of(context).compressionRecommendation),
-              const SizedBox(height: 8),
+              AppTheme.smallVerticalSpacer,
               Text(Localized.of(context).estimatedCompressedSize((VideoCompressionService.estimateCompressedSize(videoInfo, VideoQuality.medium) / 1024 / 1024).toStringAsFixed(1))),
             ],
           ),
@@ -339,17 +340,17 @@ class _UploadPageState extends State<UploadPage> {
 
   Widget _buildUploadOverlay() {
     return Container(
-      color: Colors.black.withOpacity(0.8),
+      color: AppTheme.overlayBackgroundColor,
       child: Center(
         child: Card(
-          margin: const EdgeInsets.all(32),
+          margin: AppTheme.extraLargePadding,
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: AppTheme.largePadding,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const CircularProgressIndicator(),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
                 Text(
                   editMode 
                     ? 'Updating Media...'
@@ -357,11 +358,11 @@ class _UploadPageState extends State<UploadPage> {
                   style: Theme.of(context).textTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                AppTheme.smallVerticalSpacer,
                 Text(
                   "Please don't close the app while uploading",
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
+                    color: AppTheme.mutedForegroundColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -381,27 +382,27 @@ class _UploadPageState extends State<UploadPage> {
       child: Form(
         key: _formKey,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: AppTheme.standardPadding,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Video and Thumbnail selection when in create mode
               if (!editMode) ...[
                 _buildTypeSelector(),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
 
                 if (_selectedType == MediaType.series) ...[
                   _buildEpisodeManagement(),
-                  const SizedBox(height: 16),
+                  AppTheme.mediumVerticalSpacer,
                 ],
 
                 if (_selectedType == MediaType.movie) ...[
                   _buildVideoSelector(),
-                  const SizedBox(height: 16),
+                  AppTheme.mediumVerticalSpacer,
                 ],
 
                 _buildThumbnailSelector(),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
               ],
 
               TextFormField(
@@ -417,7 +418,7 @@ class _UploadPageState extends State<UploadPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              AppTheme.mediumVerticalSpacer,
               
               // Description TextField (Form)
               TextFormField(
@@ -434,13 +435,13 @@ class _UploadPageState extends State<UploadPage> {
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              AppTheme.mediumVerticalSpacer,
 
               _buildGenreSelector(),
-              const SizedBox(height: 16),
+              AppTheme.mediumVerticalSpacer,
 
               _buildStarRating(),
-              const SizedBox(height: 16),
+              AppTheme.mediumVerticalSpacer,
             ],
           ),
         ),
@@ -532,15 +533,15 @@ class _UploadPageState extends State<UploadPage> {
           Localized.of(context).episodeManagement,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: 8),
+        AppTheme.smallVerticalSpacer,
         ..._episodeVideos.asMap().entries.map((entry) {
           final index = entry.key;
           final videoFile = entry.value;
           
           return Card(
-            margin: const EdgeInsets.only(bottom: 8),
+            margin: const EdgeInsets.only(bottom: AppTheme.smallVerticalSpacerHeight),
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: AppTheme.standardPadding,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -550,7 +551,7 @@ class _UploadPageState extends State<UploadPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  AppTheme.smallVerticalSpacer,
                   ListTile(
                     leading: const Icon(Icons.video_library),
                     title: Text(Localized.of(context).selectEpisodeVideo),
@@ -561,13 +562,13 @@ class _UploadPageState extends State<UploadPage> {
                     onTap: () => _pickEpisodeVideo(index),
                   ),
                   if (index > 0 && videoFile != null) ...[
-                    const SizedBox(height: 8),
+                    AppTheme.smallVerticalSpacer,
                     TextButton.icon(
                       onPressed: () => _removeEpisode(index),
                       icon: const Icon(Icons.remove),
                       label: Text(Localized.of(context).removeEpisode),
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
+                        foregroundColor: AppTheme.errorColor,
                       ),
                     ),
                   ],
@@ -583,7 +584,7 @@ class _UploadPageState extends State<UploadPage> {
               ? Localized.of(context).addEpisode 
               : 'Maximum 4 episodes'),
         ),
-        const SizedBox(height: 16),
+        AppTheme.mediumVerticalSpacer,
       ],
     );
   }
@@ -596,7 +597,7 @@ class _UploadPageState extends State<UploadPage> {
           Localized.of(context).genresLabel,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: 8),
+        AppTheme.smallVerticalSpacer,
         Wrap(
           spacing: 8,
           runSpacing: 4,
@@ -629,7 +630,7 @@ class _UploadPageState extends State<UploadPage> {
           Localized.of(context).ratingLabel,
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        const SizedBox(height: 8),
+        AppTheme.smallVerticalSpacer,
         Row(
           children: List.generate(5, (index) {
             final starValue = index + 1.0;
@@ -643,20 +644,20 @@ class _UploadPageState extends State<UploadPage> {
                 Icons.star,
                 size: 32,
                 color: starValue <= _selectedRating 
-                  ? Colors.amber 
-                  : Colors.grey[300],
+                  ? AppTheme.starColor 
+                  : AppTheme.inactiveRatingColor,
               ),
             );
           }),
         ),
-        const SizedBox(height: 4),
+        AppTheme.tinyVerticalSpacer,
         Text(
           '${_selectedRating.toStringAsFixed(1)} / 5.0',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey[600],
+            color: AppTheme.mutedForegroundColor,
           ),
         ),
-        const SizedBox(height: 16),
+        AppTheme.mediumVerticalSpacer,
       ],
     );
   }
