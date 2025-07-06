@@ -13,6 +13,7 @@ import '../../../localization/localized.dart';
 import '../../../core/app_theme.dart';
 import '../../../models/media.dart';
 import '../../../services/storage/firebase_service.dart';
+import '../../../services/cache_service.dart';
 
 class CataloguePage extends StatefulWidget {
   const CataloguePage({super.key});
@@ -30,7 +31,6 @@ class _CataloguePageState extends State<CataloguePage> {
     super.initState();
     context.read<CatalogueBloc>().add(LoadCatalogue());
     
-    // Ensure keyboard doesn't auto-show when page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _searchFocusNode.unfocus();
       FocusScope.of(context).unfocus();
@@ -54,39 +54,20 @@ class _CataloguePageState extends State<CataloguePage> {
     });
     
     final bloc = context.read<CatalogueBloc>();
-    final currentState = bloc.state;
-
-    final searchQuery = currentState.searchQuery;
-    final typeFilter = currentState.selectedFilter;
-    final genreFilter = currentState.selectedGenre;
     
     try {
+      // Clear cache first to force fresh data fetch
+      await CacheService.clearCache();
+      
+      // Then use LoadCatalogue which will preserve filters
       bloc.add(LoadCatalogue());
       
-      // Waits for the catalogue to load, then apply filters
+      // Wait for completion
       await bloc.stream.firstWhere((state) => 
         state.status == CatalogueStatus.loaded || state.status == CatalogueStatus.error
       );
-      
-      // Only reapply filters if load was successful (and there's actual data)
-      if (bloc.state.status == CatalogueStatus.loaded && bloc.state.allMedia.isNotEmpty) {
-        if (typeFilter != null) {
-          bloc.add(FilterByType(typeFilter));
-          await Future.delayed(const Duration(milliseconds: 50));
-        }
-        
-        if (genreFilter != null) {
-          bloc.add(FilterByGenre(genreFilter));
-          await Future.delayed(const Duration(milliseconds: 50));
-        }
-        
-        if (searchQuery.isNotEmpty) {
-          bloc.add(SearchMedia(searchQuery));
-        }
-      }
     } catch (e) {
-      debugPrint('Error during refresh, clearing filters: $e');
-      await _clearAllFiltersAndRefresh();
+      debugPrint('Error during refresh: $e');
     } finally {
       setState(() {
         _isRefreshing = false;
@@ -159,22 +140,19 @@ class _CataloguePageState extends State<CataloguePage> {
         },
         child: BlocBuilder<CatalogueBloc, CatalogueState>(
           builder: (context, state) {
-            if (_isRefreshing) {
-              return const Center(
-                child: CircularProgressIndicator(
-                  color: AppTheme.primaryForegroundColor,
-                ),
-              );
-            }
-
             switch (state.status) {
               case CatalogueStatus.initial:
               case CatalogueStatus.loading:
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.primaryForegroundColor,
-                  ),
-                );
+                // Show loading only if not refreshing (to preserve filter UI during refresh)
+                if (!_isRefreshing) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.primaryForegroundColor,
+                    ),
+                  );
+                }
+                // If refreshing, fall through to show the current content with loading indicator
+                break;
               
               case CatalogueStatus.error:
                 return ErrorStateWidget(
@@ -185,7 +163,11 @@ class _CataloguePageState extends State<CataloguePage> {
                 );
               
               case CatalogueStatus.loaded:
-                if (state.filteredMedia.isEmpty) {
+                break;
+            }
+
+            // Handle loaded state and refreshing state with existing content
+            if (state.filteredMedia.isEmpty) {
                   // Check if this is due to search/filter or no data
                   if (state.allMedia.isEmpty) {
                     return RefreshIndicator(
@@ -204,75 +186,70 @@ class _CataloguePageState extends State<CataloguePage> {
                       ),
                     );
                   } else {
-                    // Has data but filtered out - show empty
-                    return Column(
-                      children: [
-                        // Always show filters even when no results
-                        Container(
-                          width: double.infinity,
-                          color: AppTheme.primaryBackgroundColor,
-                          child: Column(
-                            children: [
-                              // Filter Chips for Media Types
-                              BlocBuilder<CatalogueBloc, CatalogueState>(
-                                builder: (context, state) {
-                                  const availableTypes = [MediaType.movie, MediaType.series];
-
-                                  return FilterChipsWidget<MediaType>(
-                                    availableOptions: availableTypes,
-                                    selectedOption: state.selectedFilter,
-                                    onFilterChanged: (type) {
-                                      context.read<CatalogueBloc>().add(FilterByType(type));
-                                    },
-                                    getOptionLabel: (context, type) {
-                                      switch (type) {
-                                        case MediaType.movie:
-                                          return Localized.of(context).movies;
-                                        case MediaType.series:
-                                          return Localized.of(context).series;
-                                      }
-                                    },
-                                    allLabel: Localized.of(context).all,
-                                  );
-                                },
-                              ),
-                              AppTheme.tinyVerticalSpacer,
-                              // Filter Chips for Genres
-                              BlocBuilder<CatalogueBloc, CatalogueState>(
-                                builder: (context, state) {
-                                  return FilterChipsWidget<String>(
-                                    availableOptions: FirebaseService.availableGenres,
-                                    selectedOption: state.selectedGenre,
-                                    onFilterChanged: (genre) {
-                                      context.read<CatalogueBloc>().add(FilterByGenre(genre));
-                                    },
-                                    getOptionLabel: (context, genre) => genre,
-                                    allLabel: Localized.of(context).allGenres,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Pull to Refresh
-                        Expanded(
-                          child: RefreshIndicator(
-                            onRefresh: _refreshCatalogue,
-                            child: ListView(
+                    // Has data but filtered out - show empty with filters
+                    return RefreshIndicator(
+                      onRefresh: _refreshCatalogue,
+                      child: ListView(
+                        children: [
+                          // Filter Section
+                          Container(
+                            width: double.infinity,
+                            color: AppTheme.primaryBackgroundColor,
+                            padding: const EdgeInsets.only(top: AppTheme.smallVerticalSpacerHeight),
+                            child: Column(
                               children: [
-                                SizedBox(
-                                  height: MediaQuery.of(context).size.height * 0.4,
-                                  child: EmptyStateWidget(
-                                    icon: Icons.search_off,
-                                    message: Localized.of(context).noMediaFound,
-                                    subtitle: Localized.of(context).noMediaFoundSubtitle,
-                                  ),
+                                // Filter Chips for Media Types
+                                BlocBuilder<CatalogueBloc, CatalogueState>(
+                                  builder: (context, state) {
+                                    const availableTypes = [MediaType.movie, MediaType.series];
+
+                                    return FilterChipsWidget<MediaType>(
+                                      availableOptions: availableTypes,
+                                      selectedOption: state.selectedFilter,
+                                      onFilterChanged: (type) {
+                                        context.read<CatalogueBloc>().add(FilterByType(type));
+                                      },
+                                      getOptionLabel: (context, type) {
+                                        switch (type) {
+                                          case MediaType.movie:
+                                            return Localized.of(context).movies;
+                                          case MediaType.series:
+                                            return Localized.of(context).series;
+                                        }
+                                      },
+                                      allLabel: Localized.of(context).all,
+                                    );
+                                  },
                                 ),
+                                AppTheme.tinyVerticalSpacer,
+                                // Filter Chips for Genres
+                                BlocBuilder<CatalogueBloc, CatalogueState>(
+                                  builder: (context, state) {
+                                    return FilterChipsWidget<String>(
+                                      availableOptions: FirebaseService.availableGenres,
+                                      selectedOption: state.selectedGenre,
+                                      onFilterChanged: (genre) {
+                                        context.read<CatalogueBloc>().add(FilterByGenre(genre));
+                                      },
+                                      getOptionLabel: (context, genre) => genre,
+                                      allLabel: Localized.of(context).allGenres,
+                                    );
+                                  },
+                                ),
+                                AppTheme.mediumVerticalSpacer,
                               ],
                             ),
                           ),
-                        ),
-                      ],
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.5,
+                            child: EmptyStateWidget(
+                              icon: Icons.search_off,
+                              message: Localized.of(context).noMediaFound,
+                              subtitle: Localized.of(context).noMediaFoundSubtitle,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
                 }
@@ -282,7 +259,6 @@ class _CataloguePageState extends State<CataloguePage> {
                   series: state.series,
                   onRefresh: _refreshCatalogue,
                 );
-            }
           },
         ),
       ),
