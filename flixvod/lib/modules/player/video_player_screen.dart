@@ -6,6 +6,7 @@ import 'dart:async';
 import '../../models/media.dart';
 import '../../logger.dart';
 import '../../localization/localized.dart';
+import '../../core/app_theme.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final Media media;
@@ -139,11 +140,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         materialProgressColors: ChewieProgressColors(
           playedColor: primaryColor,
           handleColor: primaryColor,
-          backgroundColor: Colors.grey,
-          bufferedColor: Colors.grey[300]!,
+          backgroundColor: AppTheme.primaryBorderColor,
+          bufferedColor: AppTheme.playerBufferedColor,
         ),
         placeholder: Container(
-          color: Colors.black,
+          color: AppTheme.playerBackgroundColor,
           child: const Center(
             child: CircularProgressIndicator(),
           ),
@@ -154,23 +155,23 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.error,
-                  color: Colors.white,
+                  color: AppTheme.playerControlsColor,
                   size: 64,
                 ),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
                 Text(
                   Localized.of(context).errorPlayingVideo,
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
+                  style: AppTheme.playerTitleStyle,
                 ),
-                const SizedBox(height: 8),
+                AppTheme.smallVerticalSpacer,
                 Text(
                   errorMessage,
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  style: AppTheme.playerSubtitleStyle,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                AppTheme.mediumVerticalSpacer,
                 ElevatedButton(
                   onPressed: _goBack,
                   child: Text(Localized.of(context).goBack),
@@ -198,17 +199,17 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {    
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppTheme.playerBackgroundColor,
       body: _isLoading
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircularProgressIndicator(color: Colors.white),
-                  const SizedBox(height: 16),
+                  CircularProgressIndicator(color: AppTheme.playerControlsColor),
+                  AppTheme.mediumVerticalSpacer,
                   Text(
                     Localized.of(context).loadingVideo,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: AppTheme.playerInfoStyle,
                   ),
                 ],
               ),
@@ -218,23 +219,23 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.error,
-                        color: Colors.white,
+                        color: AppTheme.playerControlsColor,
                         size: 64,
                       ),
-                      const SizedBox(height: 16),
+                      AppTheme.mediumVerticalSpacer,
                       Text(
                         Localized.of(context).failedToLoadVideo,
-                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                        style: AppTheme.playerTitleStyle,
                       ),
-                      const SizedBox(height: 8),
+                      AppTheme.smallVerticalSpacer,
                       Text(
                         _errorMessage!,
-                        style: const TextStyle(color: Colors.white70, fontSize: 14),
+                        style: AppTheme.playerSubtitleStyle,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 16),
+                      AppTheme.mediumVerticalSpacer,
                       ElevatedButton(
                         onPressed: _goBack,
                         child: Text(Localized.of(context).goBack),
@@ -270,15 +271,15 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
                             child: GestureDetector(
                               onTap: _goBack,
                               child: Container(
-                                padding: const EdgeInsets.all(8),
+                                padding: AppTheme.smallPadding,
                                 decoration: BoxDecoration(
-                                  color: Colors.black54,
+                                  color: AppTheme.playerControlBackgroundColor,
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.arrow_back,
-                                  color: Colors.white,
-                                  size: 24,
+                                  color: AppTheme.playerControlsColor,
+                                  size: AppTheme.largeIconSize,
                                 ),
                               ),
                             ),
