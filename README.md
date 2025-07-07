@@ -3,7 +3,15 @@
 Video on Demand (VOD) App built using Flutter and Firebase for iOS and Android, providing upload, streaming, and edit/add video content directly in the app
 
 ## 🚀 Introductory Video and Project Link
-Video (Just < 30 minutes 😊) [https://firebasestorage.googleapis.com/v0/b/flixvod-41083.firebasestorage.app/o/introduction%2Fintroduction.mov?alt=media&token=807db061-6dad-4ba8-b4b4-359b2ad01c24](https://firebasestorage.googleapis.com/v0/b/flixvod-41083.firebasestorage.app/o/introduction%2Fintroduction.mov?alt=media&token=bf9ee131-52e1-485f-9f55-2cf89cee7022)
+
+🚀 Demo in iOS
+https://firebasestorage.googleapis.com/v0/b/flixvod-41083.firebasestorage.app/o/introduction%2FiOSdemo.MOV?alt=media&token=6627a2ea-a00c-4474-a86e-008354f18d59
+
+
+
+🚀 Introductory Video
+[https://firebasestorage.googleapis.com/v0/b/flixvod-41083.firebasestorage.app/o/introduction%2Fintroduction.mov?alt=media&token=807db061-6dad-4ba8-b4b4-359b2ad01c24](https://firebasestorage.googleapis.com/v0/b/flixvod-41083.firebasestorage.app/o/introduction%2Fintroduction.mov?alt=media&token=bf9ee131-52e1-485f-9f55-2cf89cee7022)
+
 
 **Project**: https://github.com/users/dperez2023/projects/1
 
